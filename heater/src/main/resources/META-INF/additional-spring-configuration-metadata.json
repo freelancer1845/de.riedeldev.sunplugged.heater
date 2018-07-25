@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "publish.status",
+    "type": "java.lang.Boolean",
+    "description": "Defines whether the machine status should be published via the event bus"
+  },
+  {
+    "name": "publish.status.interval",
+    "type": "java.lang.Long",
+    "description": "Defines how much time between each publish is passed in ms"
+  }
+]}

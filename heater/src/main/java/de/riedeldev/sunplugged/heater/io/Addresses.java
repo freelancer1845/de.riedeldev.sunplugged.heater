@@ -3,12 +3,13 @@ package de.riedeldev.sunplugged.heater.io;
 public class Addresses {
 
 	public static final int PRE_HEATER_ONE_AO = 1;
-
-	public static final int PRE_HEAT_ONE_AI = 1;
-
-	public static final int PRE_HEAT_TWO_AI = 0;
-
+	public static final int PRE_HEATER_ONE_AI = 1;
+	public static final int PRE_HEATER_TWO_AI = 0;
 	public static final int PRE_HEATER_TWO_AO = 0;
+
+	public static final int MAIN_HEATER_ONE_AI = 2;
+	public static final int MAIN_HEATER_TWO_AI = 3;
+	public static final int MAIN_HEATER_THREE_AI = 4;
 
 	public static final int HEATER_FAN_ONE = 2;
 	public static final int HEATER_FAN_TWO = 3;

@@ -12,7 +12,7 @@ public class PreHeaterTwo extends AbstractPreHeater {
 
 	@Autowired
 	public PreHeaterTwo(IOService ioService, Parameters parameters) {
-		super("Pre Heater Two", Addresses.PRE_HEAT_TWO_AI,
+		super("Pre Heater Two", Addresses.PRE_HEATER_TWO_AI,
 				Addresses.PRE_HEATER_TWO_AO, ioService, parameters);
 	}
 

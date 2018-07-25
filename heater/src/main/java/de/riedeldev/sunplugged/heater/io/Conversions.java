@@ -13,11 +13,11 @@ public class Conversions {
 	 * m = 1370 - 100 / bit16
 	 * 
 	 */
-	private static double typeKM = (1370 - 100) / bit16;
+	private static double typeKM = (1370.0 - 100.0) / bit16;
 	private static double typeKC = -100;
 
 	public static double typeKConversion(int value) {
-		return typeKM * value - typeKC;
+		return typeKM * value - typeKC - 273.13;
 
 	}
 
@@ -42,7 +42,7 @@ public class Conversions {
 					"Integer > 2^16 - 1 in !unsinged int! conversion, will return 10.0");
 			return 10.0;
 		}
-		return (value / bit16) * 10.0;
+		return ((double) value / bit16) * 10.0;
 	}
 
 	private Conversions() {

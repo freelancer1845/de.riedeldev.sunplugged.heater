@@ -36,4 +36,23 @@ public interface MachineStatus {
 
 	public void setAlarmLights(boolean green, boolean orange, boolean red)
 			throws IOServiceException;
+
+	public double getZoneThreeTemperature() throws IOServiceException;
+	public double getZoneTwoTemperature() throws IOServiceException;
+	public double getZoneOneTemperature() throws IOServiceException;
+
+	public double getHeaterOneTemperature() throws IOServiceException;
+	public double getHeaterTwoTemperature() throws IOServiceException;
+
+	public double getPreHeaterOnePower() throws IOServiceException;
+	public void setPreHeaterOnePower(double power) throws IOServiceException;
+
+	public double getPreHeaterTwoPower() throws IOServiceException;
+	public void setPreHeaterTwoPower(double power) throws IOServiceException;
+
+	public double getHeaterFanOnePower() throws IOServiceException;
+	public void setHeaterFanOnePower(double power) throws IOServiceException;
+
+	public double getHeaterFanTwoPower() throws IOServiceException;
+	public void setHeaterFanTwoPower(double power) throws IOServiceException;
 }

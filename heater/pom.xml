@@ -36,6 +36,18 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-push</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.vaadin.spring.addons/vaadin-spring-addon-eventbus -->
+		<dependency>
+			<groupId>org.vaadin.spring.addons</groupId>
+			<artifactId>vaadin-spring-addon-eventbus</artifactId>
+			<version>2.0.0.RELEASE</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>com.digitalpetri.modbus</groupId>
