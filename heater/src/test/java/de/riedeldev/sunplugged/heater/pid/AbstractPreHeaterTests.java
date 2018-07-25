@@ -9,12 +9,13 @@ import org.mockito.Mockito;
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.io.Conversions;
 import de.riedeldev.sunplugged.heater.io.IOService;
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import de.riedeldev.sunplugged.heater.preheater.AbstractPreHeater;
 
 public class AbstractPreHeaterTests {
 
 	@Test
-	public void forceOffWorks() {
+	public void forceOffWorks() throws IOServiceException {
 		IOService ioMock = Mockito.mock(IOService.class);
 		Heater heater = constructStandard(ioMock);
 		heater.off();
@@ -22,7 +23,8 @@ public class AbstractPreHeaterTests {
 	}
 
 	@Test
-	public void forceControlValueTest() throws InterruptedException {
+	public void forceControlValueTest()
+			throws InterruptedException, IOServiceException {
 		IOService ioMock = Mockito.mock(IOService.class);
 		ConfigurableHeater heater = constructStandard(ioMock);
 		heater.on();
@@ -40,7 +42,8 @@ public class AbstractPreHeaterTests {
 	}
 
 	@Test
-	public void controlsValue() throws InterruptedException {
+	public void controlsValue()
+			throws InterruptedException, IOServiceException {
 		IOService ioMock = Mockito.mock(IOService.class);
 		ConfigurableHeater heater = constructStandard(ioMock);
 		heater.on();
@@ -55,7 +58,8 @@ public class AbstractPreHeaterTests {
 	}
 
 	@Test
-	public void respectsUpdateIntervalChange() throws InterruptedException {
+	public void respectsUpdateIntervalChange()
+			throws InterruptedException, IOServiceException {
 		IOService ioMock = Mockito.mock(IOService.class);
 		ConfigurableHeater heater = constructStandard(ioMock);
 		heater.on();
@@ -77,7 +81,8 @@ public class AbstractPreHeaterTests {
 	}
 
 	@Test
-	public void stopsAndRestartSPID() throws InterruptedException {
+	public void stopsAndRestartSPID()
+			throws InterruptedException, IOServiceException {
 
 		IOService ioMock = Mockito.mock(IOService.class);
 		ConfigurableHeater heater = constructStandard(ioMock);

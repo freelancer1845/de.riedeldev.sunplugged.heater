@@ -3,6 +3,7 @@ package de.riedeldev.sunplugged.heater.preheater;
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.io.Conversions;
 import de.riedeldev.sunplugged.heater.io.IOService;
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import de.riedeldev.sunplugged.heater.pid.AbstractHeater;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,19 +24,11 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 
 	public AbstractPreHeater(String name, int analogInput, int analogOutput,
 			IOService ioService, Parameters parameters) {
-		super(name);
+		super(name, parameters);
 		this.analogInput = analogInput;
 		this.analogOutput = analogOutput;
 		this.ioService = ioService;
 
-		parameters.registerListener(para -> {
-			setPIDValues(para.getPreHeaterP(), para.getPreHeaterI(),
-					para.getPreHeaterD());
-			setUpdateInterval(para.getPreHeaterIntervalLength());
-		});
-		setPIDValues(parameters.getPreHeaterP(), parameters.getPreHeaterI(),
-				parameters.getPreHeaterD());
-		setUpdateInterval(parameters.getPreHeaterIntervalLength());
 	}
 
 	@Override
@@ -45,7 +38,7 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 	}
 
 	@Override
-	public void off() {
+	public void off() throws IOServiceException {
 		ioService.setAO(analogOutput, 0);
 		isOn = false;
 	}
@@ -56,17 +49,17 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 	}
 
 	@Override
-	public double getCurrentTemperature() {
+	public double getCurrentTemperature() throws IOServiceException {
 		return Conversions.typeKConversion(ioService.getAI(analogInput));
 	}
 	@Override
-	public void forcePower(double power) {
+	public void forcePower(double power) throws IOServiceException {
 		super.forcePower(power);
 		updateOutput();
 	}
 
 	@Override
-	protected void submitChange(double change) {
+	protected void submitChange(double change) throws IOServiceException {
 		setPower(getPower() + change);
 		updateOutput();
 	}
@@ -82,7 +75,7 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 		super.setTargetTemperature(target);
 	}
 
-	private void updateOutput() {
+	private void updateOutput() throws IOServiceException {
 		if (isOn) {
 			ioService.setAO(analogOutput, Conversions
 					.unsingedVoltageToUnsingedInt(getPower() * 10.0));

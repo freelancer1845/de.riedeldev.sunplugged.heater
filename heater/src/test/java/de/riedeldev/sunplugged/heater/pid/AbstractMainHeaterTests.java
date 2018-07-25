@@ -7,12 +7,14 @@ import org.mockito.Mockito;
 
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.io.IOService;
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import de.riedeldev.sunplugged.heater.mainheater.AbstractMainHeater;
 
 public class AbstractMainHeaterTests {
 
 	@Test
-	public void relayLoopStarts() throws InterruptedException {
+	public void relayLoopStarts()
+			throws InterruptedException, IOServiceException {
 		IOService ioService = Mockito.mock(IOService.class);
 		Heater heater = constructStandard(ioService);
 

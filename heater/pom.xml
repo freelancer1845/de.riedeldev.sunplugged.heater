@@ -37,6 +37,11 @@
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.digitalpetri.modbus</groupId>
+			<artifactId>modbus-master-tcp</artifactId>
+			<version>1.1.0</version>
+		</dependency>
 
 
 		<dependency>
@@ -52,6 +57,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.digitalpetri.modbus</groupId>
+			<artifactId>modbus-slave-tcp</artifactId>
+			<version>1.1.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

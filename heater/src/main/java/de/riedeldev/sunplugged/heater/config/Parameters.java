@@ -6,13 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.ApplicationScope;
 import org.yaml.snakeyaml.DumperOptions;
@@ -27,6 +26,15 @@ import lombok.Setter;
 @Component
 @ApplicationScope
 public class Parameters {
+
+	@Getter
+	@Setter
+	private String modbus_host = "localhost";
+
+	@Getter
+	@Setter
+	private int modbus_port = 502;
+
 	@Getter
 	@Setter
 	private double preHeaterP = 1.0;
@@ -56,7 +64,9 @@ public class Parameters {
 	@Setter
 	private double mainHeaterIntervalLength = 5.0;
 
-	private List<Consumer<Parameters>> listener = new LinkedList<>();
+	@Getter
+	@Setter
+	private long fullcycleWidth = 5000;
 
 	@PostConstruct
 	protected void postConstruct() {
@@ -81,9 +91,12 @@ public class Parameters {
 		}
 	}
 
+	@Autowired
+	private ApplicationEventPublisher publisher;
+
 	public void saveParameters() {
 
-		listener.forEach(consumer -> consumer.accept(this));
+		publisher.publishEvent(new ParameterChangeEvent(this, this));
 
 		DumperOptions options = new DumperOptions();
 		options.setIndent(4);
@@ -99,10 +112,7 @@ public class Parameters {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
 
-	public void registerListener(Consumer<Parameters> consumer) {
-		this.listener.add(consumer);
 	}
 
 }

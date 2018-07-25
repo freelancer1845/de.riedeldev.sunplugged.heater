@@ -1,5 +1,10 @@
 package de.riedeldev.sunplugged.heater.pid;
 
+import org.springframework.context.event.EventListener;
+
+import de.riedeldev.sunplugged.heater.config.ParameterChangeEvent;
+import de.riedeldev.sunplugged.heater.config.Parameters;
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,10 +26,22 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 
 	private double power = 0.0;
 
-	public AbstractHeater(String name) {
+	public AbstractHeater(String name, Parameters parameters) {
 		this.name = name;
 		this.thread = new Thread(this, name);
 		miniPID.setSetpoint(0.0);
+		setParameters(parameters);
+	}
+
+	@EventListener(classes = ParameterChangeEvent.class)
+	public void onNewParameters(ParameterChangeEvent event) {
+		setParameters(event.getNewParameters());
+	}
+
+	protected void setParameters(Parameters parameters) {
+		setPIDValues(parameters.getPreHeaterP(), parameters.getPreHeaterI(),
+				parameters.getPreHeaterD());
+		setUpdateInterval(parameters.getPreHeaterIntervalLength());
 	}
 
 	@Override
@@ -49,8 +66,15 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 			long lastTime = System.currentTimeMillis();
 
 			if (control) {
-				double change = miniPID.getOutput(getCurrentTemperature());
-				submitChange(change);
+				double change;
+				try {
+					change = miniPID.getOutput(getCurrentTemperature());
+					submitChange(change);
+				} catch (IOServiceException e) {
+					log.error("Heater PID Loop crashed because of IOException",
+							e);
+				}
+
 			} else {
 				synchronized (waitObject) {
 					try {
@@ -80,7 +104,8 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 		log.debug(String.format("Heater PID Loop '%s' stopped.", name));
 	}
 
-	protected abstract void submitChange(double change);
+	protected abstract void submitChange(double change)
+			throws IOServiceException;
 
 	@Override
 	public void activateControlling() {
@@ -146,7 +171,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	}
 
 	@Override
-	public void forcePower(double power) {
+	public void forcePower(double power) throws IOServiceException {
 		if (isControlling()) {
 			log.warn(
 					"Trying to force power, but PID is running. Consider deactivating it!");

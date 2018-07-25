@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import de.riedeldev.sunplugged.heater.io.Addresses;
 import de.riedeldev.sunplugged.heater.io.Conversions;
 import de.riedeldev.sunplugged.heater.io.IOService;
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
 
 @Service
 public class HeaterFanTwo implements HeaterFan {
@@ -18,13 +19,13 @@ public class HeaterFanTwo implements HeaterFan {
 	}
 
 	@Override
-	public double getPower() {
+	public double getPower() throws IOServiceException {
 		return Conversions.unsingedIntToUnsingedVoltage(
 				ioService.getAO(Addresses.HEATER_FAN_TWO)) / 10.0;
 	}
 
 	@Override
-	public void setPower(double newPower) {
+	public void setPower(double newPower) throws IOServiceException {
 		if (newPower < 0) {
 			newPower = 0;
 		} else if (newPower > 1) {

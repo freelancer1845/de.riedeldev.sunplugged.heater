@@ -5,6 +5,7 @@ import javax.annotation.PostConstruct;
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.io.Conversions;
 import de.riedeldev.sunplugged.heater.io.IOService;
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import de.riedeldev.sunplugged.heater.pid.AbstractHeater;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractMainHeater extends AbstractHeater {
 
 	/** in seconds */
-	private static final long FULL_CYCLE_WIDTH = 5000;
+	private long FULL_CYCLE_WIDTH = 5000;
 
 	private final int switchOutput;
 
@@ -28,21 +29,18 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 
 	public AbstractMainHeater(String name, int switchOutput,
 			int temperatureInput, IOService ioService, Parameters parameters) {
-		super(name);
+		super(name, parameters);
 		this.ioService = ioService;
 		this.switchOutput = switchOutput;
 		this.temperatureInput = temperatureInput;
 
-		parameters.registerListener(para -> {
-			setPIDValues(para.getMainHeaterP(), para.getMainHeaterI(),
-					para.getMainHeaterD());
-			setUpdateInterval(para.getMainHeaterIntervalLength());
-		});
-		setPIDValues(parameters.getMainHeaterP(), parameters.getMainHeaterI(),
-				parameters.getMainHeaterD());
-		setUpdateInterval(parameters.getMainHeaterIntervalLength());
-
 		relayThread = createRelayThread();
+	}
+
+	@Override
+	protected void setParameters(Parameters parameters) {
+		super.setParameters(parameters);
+		FULL_CYCLE_WIDTH = parameters.getFullcycleWidth();
 	}
 
 	@PostConstruct
@@ -82,6 +80,8 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 		} catch (InterruptedException e) {
 			log.debug(Thread.currentThread().getName() + " was interrupted.",
 					e);
+		} catch (IOServiceException e) {
+			log.error("IOService failed.", e);
 		}
 
 	}
@@ -114,7 +114,7 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 	}
 
 	@Override
-	public double getCurrentTemperature() {
+	public double getCurrentTemperature() throws IOServiceException {
 		return Conversions.typeKConversion(ioService.getAI(temperatureInput));
 	}
 

@@ -1,36 +1,39 @@
 package de.riedeldev.sunplugged.heater.status;
 
+import de.riedeldev.sunplugged.heater.io.IOServiceException;
+
 public interface MachineStatus {
 
-	public boolean plcSaysAllFine();
+	public boolean plcSaysAllFine() throws IOServiceException;
 
-	public boolean isOvertemperature();
+	public boolean isOvertemperature() throws IOServiceException;
 
-	public boolean panelInterlockOne();
+	public boolean panelInterlockOne() throws IOServiceException;
 
-	public boolean panelInterlockTwo();
+	public boolean panelInterlockTwo() throws IOServiceException;
 
-	public boolean panelInterlockThree();
+	public boolean panelInterlockThree() throws IOServiceException;
 
-	public boolean coverAlarmTop();
+	public boolean coverAlarmTop() throws IOServiceException;
 
-	public boolean coverAlarmBottom();
+	public boolean coverAlarmBottom() throws IOServiceException;
 
-	public boolean panelInterlockAlarm();
+	public boolean panelInterlockAlarm() throws IOServiceException;
 
-	public boolean isHorn();
+	public boolean isHorn() throws IOServiceException;
 
-	public void setHorn(boolean on);
+	public void setHorn(boolean on) throws IOServiceException;
 
-	public boolean isPlcStart();
+	public boolean isPlcStart() throws IOServiceException;
 
-	public void setPlcStart(boolean on);
+	public void setPlcStart(boolean on) throws IOServiceException;
 
-	public boolean isPlcRun();
+	public boolean isPlcRun() throws IOServiceException;
 
-	public void setPlcRun(boolean on);
+	public void setPlcRun(boolean on) throws IOServiceException;
 
-	public boolean[] getAlarmLights();
+	public boolean[] getAlarmLights() throws IOServiceException;
 
-	public void setAlarmLights(boolean green, boolean orange, boolean red);
+	public void setAlarmLights(boolean green, boolean orange, boolean red)
+			throws IOServiceException;
 }
