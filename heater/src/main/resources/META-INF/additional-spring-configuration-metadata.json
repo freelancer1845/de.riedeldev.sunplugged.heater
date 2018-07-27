@@ -10,8 +10,13 @@
     "description": "Defines how much time between each publish is passed in ms"
   },
   {
-    "name": "pid.enable.logging",
+    "name": "pid.logging.enable",
     "type": "java.lang.Boolean",
     "description": "Enables logging for each pid controller. Files are in the folder PID"
+  },
+  {
+    "name": "pid.logging.folder",
+    "type": "java.lang.String",
+    "description": "Folder that the logfiles will appear in"
   }
 ]}

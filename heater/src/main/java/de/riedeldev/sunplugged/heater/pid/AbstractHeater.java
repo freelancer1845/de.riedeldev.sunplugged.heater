@@ -1,5 +1,7 @@
 package de.riedeldev.sunplugged.heater.pid;
 
+import java.nio.file.Paths;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
@@ -11,8 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 
-	@Value("${pid.enable.logging:false}")
+	@Value("${pid.logging.enable:false}")
 	private boolean logging = false;
+
+	@Value("${pid.logging.folder:data}")
+	private String logFolder = "data";
 
 	private volatile boolean running = true;
 
@@ -70,7 +75,8 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	public void run() {
 		log.debug(String.format("Starting Heater PID Loop '%s'", name));
 		if (logging == true) {
-			PIDLogger logger = new PIDLogger(name, this);
+			PIDLogger logger = new PIDLogger(
+					Paths.get(logFolder, name).toString(), this);
 
 			logger.start();
 			log.debug(String.format(

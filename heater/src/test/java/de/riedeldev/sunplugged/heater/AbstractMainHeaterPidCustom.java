@@ -1,6 +1,7 @@
 package de.riedeldev.sunplugged.heater;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.io.IOService;
@@ -24,7 +25,8 @@ public class AbstractMainHeaterPidCustom {
 			}
 		};
 
-		PIDLogger logger = new PIDLogger("pidtests/piddata", heater);
+		PIDLogger logger = new PIDLogger(
+				Paths.get("pidtests", "piddata").toString(), heater);
 		logger.start();
 
 		heater.startControlLoop();
