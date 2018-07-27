@@ -88,7 +88,8 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 
 	@Override
 	protected void submitChange(double change) {
-		setPower(getPower() + change);
+		// setPower(getPower() + change);
+		setPower(change);
 	}
 
 	@Override

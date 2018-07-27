@@ -24,4 +24,6 @@ public interface Heater {
 
 	public void forcePower(double power) throws IOServiceException;
 
+	public double getPower();
+
 }

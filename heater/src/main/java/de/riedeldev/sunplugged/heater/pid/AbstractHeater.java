@@ -1,5 +1,6 @@
 package de.riedeldev.sunplugged.heater.pid;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 
 import de.riedeldev.sunplugged.heater.config.ParameterChangeEvent;
@@ -9,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
+
+	@Value("${pid.enable.logging:false}")
+	private boolean logging = false;
 
 	private volatile boolean running = true;
 
@@ -30,6 +34,9 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 		this.name = name;
 		this.thread = new Thread(this, name);
 		miniPID.setSetpoint(0.0);
+		// miniPID.setMaxIOutput(0.5);
+		miniPID.setOutputLimits(0.0, 1.0);
+		miniPID.setOutputRampRate(0.2);
 		setParameters(parameters);
 	}
 
@@ -62,12 +69,21 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	@Override
 	public void run() {
 		log.debug(String.format("Starting Heater PID Loop '%s'", name));
+		if (logging == true) {
+			PIDLogger logger = new PIDLogger(name, this);
+
+			logger.start();
+			log.debug(String.format(
+					"Data Logging is enabeled. Logging into \"%s\".",
+					logger.getFilePath()));
+		}
 		while (running && Thread.interrupted() == false) {
 			long lastTime = System.currentTimeMillis();
 
 			if (control) {
 				double change;
 				try {
+					double currentValue = getCurrentTemperature();
 					change = miniPID.getOutput(getCurrentTemperature());
 					submitChange(change);
 				} catch (IOServiceException e) {

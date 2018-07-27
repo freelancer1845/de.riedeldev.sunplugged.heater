@@ -37,28 +37,28 @@ public class Parameters {
 
 	@Getter
 	@Setter
-	private double preHeaterP = 1.0;
+	private double preHeaterP = 0.1;
 	@Getter
 	@Setter
-	private double preHeaterI = 20.0;
+	private double preHeaterI = 0.06;
 	@Getter
 	@Setter
-	private double preHeaterD = 5.0;
+	private double preHeaterD = 0.002;
 	@Getter
 	@Setter
 	private double preHeaterIntervalLength = 2.0;
 
 	@Getter
 	@Setter
-	private double mainHeaterP = 1.0;
+	private double mainHeaterP = 0.1;
 
 	@Getter
 	@Setter
-	private double mainHeaterI = 1.0;
+	private double mainHeaterI = 0.06;
 
 	@Getter
 	@Setter
-	private double mainHeaterD = 5.0;
+	private double mainHeaterD = 0.002;
 
 	@Getter
 	@Setter

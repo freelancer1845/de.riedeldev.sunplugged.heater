@@ -129,7 +129,7 @@ public class MiniPID {
 	 *            New gain value for the Integral term
 	 */
 	public void setI(double i) {
-		if (I != 0) {
+		if (i != 0) {
 			errorSum = errorSum * I / i;
 		}
 		if (maxIOutput != 0) {
@@ -351,7 +351,8 @@ public class MiniPID {
 		// outputs.
 		if (firstRun) {
 			lastActual = actual;
-			lastOutput = Poutput + Foutput;
+			lastOutput = 0;
+			// lastOutput = Poutput + Foutput;
 			firstRun = false;
 		}
 

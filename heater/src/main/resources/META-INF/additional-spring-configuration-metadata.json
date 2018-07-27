@@ -8,5 +8,10 @@
     "name": "publish.status.interval",
     "type": "java.lang.Long",
     "description": "Defines how much time between each publish is passed in ms"
+  },
+  {
+    "name": "pid.enable.logging",
+    "type": "java.lang.Boolean",
+    "description": "Enables logging for each pid controller. Files are in the folder PID"
   }
 ]}
