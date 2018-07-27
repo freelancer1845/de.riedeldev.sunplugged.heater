@@ -2,15 +2,19 @@ package de.riedeldev.sunplugged.heater.pid;
 
 import java.nio.file.Paths;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 
 import de.riedeldev.sunplugged.heater.config.ParameterChangeEvent;
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.io.IOServiceException;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@EqualsAndHashCode(of = "name")
 public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 
 	@Value("${pid.logging.enable:false}")
@@ -34,6 +38,9 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	private Object waitObject = new Object();
 
 	private double power = 0.0;
+
+	@Autowired
+	private ApplicationEventPublisher publisher = null;
 
 	public AbstractHeater(String name, Parameters parameters) {
 		this.name = name;
@@ -89,9 +96,12 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 			if (control) {
 				double change;
 				try {
-					double currentValue = getCurrentTemperature();
 					change = miniPID.getOutput(getCurrentTemperature());
 					submitChange(change);
+
+					if (publisher != null) {
+						publisher.publishEvent(HeaterStatusEvent.getFor(this));
+					}
 				} catch (IOServiceException e) {
 					log.error("Heater PID Loop crashed because of IOException",
 							e);

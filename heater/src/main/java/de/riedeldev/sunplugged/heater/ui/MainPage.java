@@ -1,6 +1,7 @@
 package de.riedeldev.sunplugged.heater.ui;
 
 import com.vaadin.annotations.Push;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringUI;
@@ -51,12 +52,12 @@ public class MainPage extends UI {
 
 		headerLayout.addComponent(mainMenu);
 
-		// mainMenu.addItem("Live", VaadinIcons.LINE_CHART, item -> {
-		// navigator.navigateTo(Views.LIVE_VIEW);
-		// });
+		mainMenu.addItem("Status View", VaadinIcons.LINE_CHART, item -> {
+			navigator.navigateTo(ViewNames.STATUS_VIEW);
+		});
 
-		// mainMenu.addItem("Data", VaadinIcons.DATABASE,
-		// item -> navigator.navigateTo(Views.DATA_VIEW));
+		mainMenu.addItem("PID", VaadinIcons.DATABASE,
+				item -> navigator.navigateTo(ViewNames.PID_VIEW));
 
 		contentLayout = new VerticalLayout();
 		contentLayout.setMargin(false);

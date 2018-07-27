@@ -60,17 +60,18 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 
 	@Override
 	protected void submitChange(double change) throws IOServiceException {
-		setPower(getPower() + change);
+		setPower(change);
 		updateOutput();
 	}
 
 	@Override
 	public void setTargetTemperature(double target) {
 		if (target > MAX_TEMPERATURE) {
-			log.error(String.format(
+			String error = String.format(
 					"Target Temperature for PreHeater '%s' too high. (%.2f)",
-					name, target));
-			return;
+					name, target);
+			log.error(error);
+			throw new IllegalArgumentException(error);
 		}
 		super.setTargetTemperature(target);
 	}
