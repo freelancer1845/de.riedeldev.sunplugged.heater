@@ -28,7 +28,7 @@ public class AbstractMainHeaterTests {
 
 	private AbstractMainHeater constructStandard(IOService ioService) {
 		return new AbstractMainHeater("Test Heater", 0, 0, ioService,
-				new Parameters()) {
+				new Parameters(), "mockTopic") {
 
 		};
 

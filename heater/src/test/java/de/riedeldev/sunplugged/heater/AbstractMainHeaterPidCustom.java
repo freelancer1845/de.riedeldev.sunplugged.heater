@@ -16,7 +16,7 @@ public class AbstractMainHeaterPidCustom {
 		IOService ioService = new IOServiceTest();
 
 		AbstractMainHeater heater = new AbstractMainHeater("Test", 1, 1,
-				ioService, new Parameters()) {
+				ioService, new Parameters(), "NonTopic") {
 
 			@Override
 			protected void setPower(double power) {

@@ -41,14 +41,8 @@ public interface MachineStatus {
 	public double getZoneTwoTemperature() throws IOServiceException;
 	public double getZoneOneTemperature() throws IOServiceException;
 
-	public double getHeaterOneTemperature() throws IOServiceException;
-	public double getHeaterTwoTemperature() throws IOServiceException;
-
-	public double getPreHeaterOnePower() throws IOServiceException;
-	public void setPreHeaterOnePower(double power) throws IOServiceException;
-
-	public double getPreHeaterTwoPower() throws IOServiceException;
-	public void setPreHeaterTwoPower(double power) throws IOServiceException;
+	public double getPreHeaterOneTemperature() throws IOServiceException;
+	public double getPreHeaterTwoTemperature() throws IOServiceException;
 
 	public double getHeaterFanOnePower() throws IOServiceException;
 	public void setHeaterFanOnePower(double power) throws IOServiceException;

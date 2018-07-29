@@ -28,6 +28,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import de.riedeldev.sunplugged.heater.io.IOServiceException;
+import de.riedeldev.sunplugged.heater.preheater.PreHeaterOne;
+import de.riedeldev.sunplugged.heater.preheater.PreHeaterTwo;
 import de.riedeldev.sunplugged.heater.status.MachineStatus;
 import de.riedeldev.sunplugged.heater.status.MachineStatusBiConsumer;
 import de.riedeldev.sunplugged.heater.status.MachineStatusConsumer;
@@ -54,7 +56,8 @@ public class StatusView extends VerticalLayout implements View {
 	private List<Consumer<MachineStatusSnapshot>> labels = new LinkedList<>();
 
 	@Autowired
-	public StatusView(MachineStatus machineStatus) {
+	public StatusView(MachineStatus machineStatus, PreHeaterOne preHeaterOne,
+			PreHeaterTwo preHeaterTwo) {
 
 		HorizontalLayout digitalGroup = new HorizontalLayout();
 		digitalGroup.setCaption("<h2>Digital I/O</h2>");
@@ -128,9 +131,9 @@ public class StatusView extends VerticalLayout implements View {
 		digitalGroup.addComponent(analogInputs);
 
 		analogInputs.addComponent(new StatusTextField("Heater One",
-				s -> String.format("%.2f C", s.getHeaterOneTemperature())));
+				s -> String.format("%.2f C", s.getPreHeaterOneTemperature())));
 		analogInputs.addComponent(new StatusTextField("Heater Two",
-				s -> String.format("%.2f C", s.getHeaterTwoTemperature())));
+				s -> String.format("%.2f C", s.getPreHeaterTwoTemperature())));
 
 		analogInputs.addComponent(new StatusTextField("Zone One",
 				s -> String.format("%.2f C", s.getZoneOneTemperature())));
@@ -145,16 +148,16 @@ public class StatusView extends VerticalLayout implements View {
 		analogOutputs.setMargin(false);
 		analogOutputs.addComponent(new ChangeableStatusTextField(
 				"Pre Heater One",
-				s -> String.format("%.2f %%", s.getPreHeaterOnePower() * 100),
-				(s, v) -> s.setPreHeaterOnePower(v), machineStatus));
+				s -> String.format("%.2f %%", preHeaterOne.getPower() * 100),
+				(s, v) -> preHeaterOne.forcePower(v), machineStatus));
 		analogOutputs.addComponent(new ChangeableStatusTextField(
 				"Heater Fan One",
 				s -> String.format("%.2f %%", s.getHeaterFanOnePower() * 100),
 				(s, v) -> s.setHeaterFanOnePower(v), machineStatus));
 		analogOutputs.addComponent(new ChangeableStatusTextField(
 				"Pre Heater Two",
-				s -> String.format("%.2f %%", s.getPreHeaterTwoPower() * 100),
-				(s, v) -> s.setPreHeaterTwoPower(v), machineStatus));
+				s -> String.format("%.2f %%", preHeaterTwo.getPower() * 100),
+				(s, v) -> preHeaterTwo.forcePower(v), machineStatus));
 		analogOutputs.addComponent(new ChangeableStatusTextField(
 				"Heater Fan Two",
 				s -> String.format("%.2f %%", s.getHeaterFanTwoPower() * 100),

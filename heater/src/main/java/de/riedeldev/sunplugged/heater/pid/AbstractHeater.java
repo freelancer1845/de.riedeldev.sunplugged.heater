@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import de.riedeldev.sunplugged.heater.config.ParameterChangeEvent;
 import de.riedeldev.sunplugged.heater.config.Parameters;
@@ -42,9 +46,15 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	@Autowired
 	private ApplicationEventPublisher publisher = null;
 
-	public AbstractHeater(String name, Parameters parameters) {
+	@Autowired
+	protected SimpMessagingTemplate template = null;
+
+	private final String topic;
+
+	public AbstractHeater(String name, Parameters parameters, String topic) {
 		this.name = name;
 		this.thread = new Thread(this, name);
+		this.topic = topic;
 		miniPID.setSetpoint(0.0);
 		// miniPID.setMaxIOutput(0.5);
 		miniPID.setOutputLimits(0.0, 1.0);
@@ -55,6 +65,33 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	@EventListener(classes = ParameterChangeEvent.class)
 	public void onNewParameters(ParameterChangeEvent event) {
 		setParameters(event.getNewParameters());
+	}
+
+	@MessageMapping
+	public void onMessage(Message<HeaterStatus> message) {
+		if (message.getHeaders()
+				.get(SimpMessageHeaderAccessor.DESTINATION_HEADER)
+				.equals(topic)) {
+			HeaterStatus status = message.getPayload();
+			handleNewStatus(status);
+
+		}
+	}
+
+	protected void handleNewStatus(HeaterStatus status) {
+		if (status.getPower() != getPower()) {
+			setPower(status.getPower());
+		}
+		if (status.getP() != miniPID.getP()) {
+			setPIDValues(status.getP(), status.getI(), status.getD());
+		} else if (status.getI() != miniPID.getI()) {
+			setPIDValues(status.getP(), status.getI(), status.getD());
+		} else if (status.getD() != miniPID.getD()) {
+			setPIDValues(status.getP(), status.getI(), status.getD());
+		}
+		if (status.getTargetTemperature() != getTargetTemperature()) {
+			setTargetTemperature(status.getTargetTemperature());
+		}
 	}
 
 	protected void setParameters(Parameters parameters) {
@@ -150,6 +187,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 		synchronized (waitObject) {
 			waitObject.notifyAll();
 		}
+		sendNewStatus();
 	}
 
 	@Override
@@ -157,6 +195,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 		log.debug(String.format("Deactivated Controlling for Heater Loop '%s'",
 				name));
 		this.control = false;
+		sendNewStatus();
 	}
 
 	@Override
@@ -183,6 +222,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 				"New PID Values for Heater Loop '%s': P='%.3f' I='%.3f' D='%.3f'",
 				name, P, I, D));
 		miniPID.setPID(P, I, D);
+		sendNewStatus();
 	}
 
 	@Override
@@ -222,6 +262,23 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 			this.power = 1;
 		}
 		this.power = power;
+		sendNewStatus();
+	}
+
+	protected void sendNewStatus() {
+		double currentTemperature;
+		try {
+			currentTemperature = getCurrentTemperature();
+		} catch (IOServiceException e) {
+			currentTemperature = Double.NaN;
+		}
+		HeaterStatus status = new HeaterStatus(isOn(), isControlling(),
+				getPower(), miniPID.getP(), miniPID.getI(), miniPID.getD(),
+				getTargetTemperature(), currentTemperature);
+		if (template != null) {
+			template.convertAndSend(topic, status);
+		}
+
 	}
 
 }

@@ -28,8 +28,9 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 	private Thread relayThread;
 
 	public AbstractMainHeater(String name, int switchOutput,
-			int temperatureInput, IOService ioService, Parameters parameters) {
-		super(name, parameters);
+			int temperatureInput, IOService ioService, Parameters parameters,
+			String topic) {
+		super(name, parameters, topic);
 		this.ioService = ioService;
 		this.switchOutput = switchOutput;
 		this.temperatureInput = temperatureInput;

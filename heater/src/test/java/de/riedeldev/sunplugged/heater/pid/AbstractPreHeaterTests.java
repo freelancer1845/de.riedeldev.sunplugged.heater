@@ -112,7 +112,8 @@ public class AbstractPreHeaterTests {
 
 	private AbstractPreHeater constructStandard(IOService ioService) {
 		Parameters para = new Parameters();
-		return new AbstractPreHeater("Test Heater", 1, 1, ioService, para) {
+		return new AbstractPreHeater("Test Heater", 1, 1, ioService, para,
+				"mockTopic") {
 		};
 	}
 

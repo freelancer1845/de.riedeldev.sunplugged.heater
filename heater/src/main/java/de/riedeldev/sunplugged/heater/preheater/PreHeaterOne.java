@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.riedeldev.sunplugged.heater.config.Parameters;
+import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.Addresses;
 import de.riedeldev.sunplugged.heater.io.IOService;
 
@@ -13,7 +14,8 @@ public class PreHeaterOne extends AbstractPreHeater {
 	@Autowired
 	public PreHeaterOne(IOService ioService, Parameters parameters) {
 		super("Pre Heater One", Addresses.PRE_HEATER_ONE_AI,
-				Addresses.PRE_HEATER_ONE_AO, ioService, parameters);
+				Addresses.PRE_HEATER_ONE_AO, ioService, parameters,
+				Topics.PRE_HEATER_ONE);
 	}
 
 }

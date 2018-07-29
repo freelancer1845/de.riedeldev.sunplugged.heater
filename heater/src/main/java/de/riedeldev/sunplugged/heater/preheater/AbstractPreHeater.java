@@ -23,8 +23,8 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 	private IOService ioService;
 
 	public AbstractPreHeater(String name, int analogInput, int analogOutput,
-			IOService ioService, Parameters parameters) {
-		super(name, parameters);
+			IOService ioService, Parameters parameters, String topic) {
+		super(name, parameters, topic);
 		this.analogInput = analogInput;
 		this.analogOutput = analogOutput;
 		this.ioService = ioService;

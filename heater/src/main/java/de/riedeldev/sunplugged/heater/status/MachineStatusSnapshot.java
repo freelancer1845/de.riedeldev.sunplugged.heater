@@ -38,13 +38,9 @@ public class MachineStatusSnapshot implements MachineStatus {
 
 	private final double zoneThree;
 
-	private final double heaterOne;
+	private final double preHeaterOneTemperature;
 
-	private final double heaterTwo;
-
-	private final double heaterOnePower;
-
-	private final double heaterTwoPower;
+	private final double preHeaterTwoTemperature;
 
 	private final double heaterFanOnePower;
 
@@ -71,10 +67,8 @@ public class MachineStatusSnapshot implements MachineStatus {
 		zoneOne = status.getZoneOneTemperature();
 		zoneTwo = status.getZoneTwoTemperature();
 		zoneThree = status.getZoneThreeTemperature();
-		heaterOne = status.getHeaterOneTemperature();
-		heaterTwo = status.getHeaterTwoTemperature();
-		heaterOnePower = status.getPreHeaterOnePower();
-		heaterTwoPower = status.getPreHeaterTwoPower();
+		preHeaterOneTemperature = status.getPreHeaterOneTemperature();
+		preHeaterTwoTemperature = status.getPreHeaterTwoTemperature();
 		heaterFanOnePower = status.getHeaterFanOnePower();
 		heaterFanTwoPower = status.getHeaterFanTwoPower();
 		timestamp = LocalDateTime.now();
@@ -84,6 +78,10 @@ public class MachineStatusSnapshot implements MachineStatus {
 			throws IOServiceException {
 		MachineStatusSnapshot snapshot = new MachineStatusSnapshot(status);
 		return snapshot;
+	}
+
+	public void update(MachineStatus status) {
+
 	}
 
 	@Override
@@ -182,36 +180,6 @@ public class MachineStatusSnapshot implements MachineStatus {
 	}
 
 	@Override
-	public double getHeaterOneTemperature() {
-		return heaterOne;
-	}
-
-	@Override
-	public double getHeaterTwoTemperature() {
-		return heaterTwo;
-	}
-
-	@Override
-	public double getPreHeaterOnePower() {
-		return heaterOnePower;
-	}
-
-	@Override
-	public void setPreHeaterOnePower(double power) throws IOServiceException {
-		throw new UnsupportedOperationException("This is only a snapshot!");
-	}
-
-	@Override
-	public double getPreHeaterTwoPower() {
-		return heaterTwoPower;
-	}
-
-	@Override
-	public void setPreHeaterTwoPower(double power) throws IOServiceException {
-		throw new UnsupportedOperationException("This is only a snapshot!");
-	}
-
-	@Override
 	public double getHeaterFanOnePower() {
 		return heaterFanOnePower;
 	}
@@ -229,6 +197,16 @@ public class MachineStatusSnapshot implements MachineStatus {
 	@Override
 	public void setHeaterFanTwoPower(double power) throws IOServiceException {
 		throw new UnsupportedOperationException("This is only a snapshot!");
+	}
+
+	@Override
+	public double getPreHeaterOneTemperature() {
+		return preHeaterOneTemperature;
+	}
+
+	@Override
+	public double getPreHeaterTwoTemperature() {
+		return preHeaterTwoTemperature;
 	}
 
 }

@@ -1,4 +1,4 @@
-package de.riedeldev.sunplugged.heater.preheater;
+package de.riedeldev.sunplugged.heater.mainheater;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,13 +9,13 @@ import de.riedeldev.sunplugged.heater.io.Addresses;
 import de.riedeldev.sunplugged.heater.io.IOService;
 
 @Service
-public class PreHeaterTwo extends AbstractPreHeater {
+public class MainHeaterOne extends AbstractMainHeater {
 
 	@Autowired
-	public PreHeaterTwo(IOService ioService, Parameters parameters) {
-		super("Pre Heater Two", Addresses.PRE_HEATER_TWO_AI,
-				Addresses.PRE_HEATER_TWO_AO, ioService, parameters,
-				Topics.PRE_HEATER_TWO);
+	public MainHeaterOne(IOService ioService, Parameters parameters) {
+		super("Main Heater One", Addresses.MAIN_HEATER_ONE_DO,
+				Addresses.MAIN_HEATER_ONE_AI, ioService, parameters,
+				Topics.MAIN_HEATER_ONE);
 	}
 
 }
