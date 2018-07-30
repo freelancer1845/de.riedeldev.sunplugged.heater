@@ -7,9 +7,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.context.annotation.ApplicationScope;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 
 import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.Addresses;
@@ -18,7 +22,8 @@ import de.riedeldev.sunplugged.heater.io.IOService;
 import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Controller
+@ApplicationScope
 @Slf4j
 public class MachineStatusImpl implements MachineStatus {
 
@@ -97,39 +102,43 @@ public class MachineStatusImpl implements MachineStatus {
 	@Override
 	public boolean isHorn() throws IOServiceException {
 		boolean newValue = ioService.getDO(Addresses.HORN);
-		sendMessageIfChanged(Topics.IS_HORN, newValue);
+		sendMessageIfChanged(Topics.HORN, newValue);
 		return ioService.getDO(Addresses.HORN);
 	}
 
 	@Override
+	@MessageMapping(Topics.HORN)
 	public void setHorn(boolean on) throws IOServiceException {
 		ioService.setDO(Addresses.HORN, on);;
-		sendMessageIfChanged(Topics.IS_HORN, on);
+		sendMessageIfChanged(Topics.HORN, on);
 	}
 
 	@Override
 	public boolean isPlcStart() throws IOServiceException {
 		boolean newValue = ioService.getDO(Addresses.PLC_START);
-		sendMessageIfChanged(Topics.IS_PLC_START, newValue);
+		sendMessageIfChanged(Topics.PLC_START, newValue);
 		return newValue;
 	}
 
 	@Override
+	@MessageMapping(Topics.PLC_START)
 	public void setPlcStart(boolean on) throws IOServiceException {
 		ioService.setDO(Addresses.PLC_START, on);
-		sendMessageIfChanged(Topics.IS_PLC_START, on);
+		sendMessageIfChanged(Topics.PLC_START, on);
 	}
 
 	@Override
 	public boolean isPlcRun() throws IOServiceException {
 		boolean newValue = ioService.getDO(Addresses.PLC_RUN);
-		sendMessageIfChanged(Topics.IS_PLC_RUN, newValue);
+		sendMessageIfChanged(Topics.PLC_RUN, newValue);
 		return newValue;
 	}
 
 	@Override
+	@MessageMapping(Topics.PLC_RUN)
 	public void setPlcRun(boolean on) throws IOServiceException {
 		ioService.setDO(Addresses.PLC_RUN, on);
+		sendMessageIfChanged(Topics.PLC_RUN, on);
 	}
 
 	@Override
@@ -160,10 +169,13 @@ public class MachineStatusImpl implements MachineStatus {
 	public void publishStatus() {
 		if (publishStatus == true) {
 			try {
-				publisher.publishEvent(new MachineStatusEvent(this,
-						MachineStatusSnapshot.create(this)));
+				if (newConnected == true) {
+					oldValuesList.clear();
+					newConnected = false;
+				}
+				MachineStatusSnapshot.create(this);
 			} catch (IOServiceException e) {
-				log.error("Failed to publish machinestatus", e);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -238,13 +250,20 @@ public class MachineStatusImpl implements MachineStatus {
 		sendMessageIfChanged(Topics.HEATER_FAN_TWO_POWER, power);
 	}
 
+	private boolean newConnected = false;
+
+	@EventListener
+	public void newSessionListener(SessionConnectedEvent event) {
+		newConnected = true;
+	}
+
 	private void sendMessageIfChanged(String topic, Object value) {
 		if (oldValuesList.containsKey(topic) == false) {
 			oldValuesList.put(topic, value);
-			template.convertAndSend(topic, value);
+			template.convertAndSend("/topic" + topic, value);
 		} else {
 			if (oldValuesList.get(topic).equals(value) == false) {
-				template.convertAndSend(topic, value);
+				template.convertAndSend("/topic" + topic, value);
 				oldValuesList.put(topic, value);
 			}
 		}
@@ -252,12 +271,12 @@ public class MachineStatusImpl implements MachineStatus {
 
 	private void sendMessageIfChanged(String topic, boolean[] values) {
 		if (oldValuesList.containsKey(topic) == false) {
-			oldValuesList.put(topic, values);
+			oldValuesList.put("/topic" + topic, values);
 			template.convertAndSend(topic, values);
 		} else {
 			if (Arrays.equals((boolean[]) oldValuesList.get(topic),
 					values) == false) {
-				template.convertAndSend(topic, values);
+				template.convertAndSend("/topic" + topic, values);
 				oldValuesList.put(topic, values);
 			}
 		}

@@ -8,7 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
 import com.digitalpetri.modbus.master.ModbusTcpMasterConfig;
@@ -24,15 +31,20 @@ import com.digitalpetri.modbus.responses.ReadHoldingRegistersResponse;
 import com.digitalpetri.modbus.responses.ReadInputRegistersResponse;
 
 import de.riedeldev.sunplugged.heater.config.Parameters;
+import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.IOServiceEvent.Type;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Controller
 @Slf4j
 public class IOServiceImpl implements IOService {
 
 	private ApplicationEventPublisher publisher;
+
+	@Autowired
+	private SimpMessagingTemplate template;
 
 	private ModbusTcpMaster master = null;
 
@@ -54,6 +66,39 @@ public class IOServiceImpl implements IOService {
 	@PreDestroy
 	protected void preDestroy() {
 		disconnectedFromModubsTCP();
+	}
+
+	private boolean[] previousDI = new boolean[20];
+
+	@Scheduled(fixedRate = 100)
+	public void publishInputValues() {
+		if (master != null) {
+			master.sendRequest(new ReadDiscreteInputsRequest(0, 20), 0)
+					.thenAccept(res -> {
+						ReadDiscreteInputsResponse response = (ReadDiscreteInputsResponse) res;
+						ByteBuf buf = response.getInputStatus();
+						int currentByte = 0;
+						int bitsRead = 0;
+						byte ans = buf.getByte(currentByte);
+						for (int i = 0; i < 20; i++) {
+							if (bitsRead == 8) {
+								bitsRead = 0;
+								currentByte++;
+								ans = buf.getByte(currentByte);
+							}
+							boolean value = ((ans) & (0x01 << bitsRead)) != 0;
+							if (previousDI[i] != value) {
+								String path = UriComponentsBuilder
+										.fromPath("/topic").path(Topics.DI)
+										.buildAndExpand(i).toString();
+								template.convertAndSend(path, value);
+								previousDI[i] = value;
+							}
+							bitsRead++;
+
+						}
+					});
+		}
 	}
 
 	private void connectoToModbusTCP(Parameters parameters) {
@@ -94,13 +139,22 @@ public class IOServiceImpl implements IOService {
 	}
 
 	@Override
-	public void setDO(int address, boolean value) throws IOServiceException {
+	@MessageMapping(Topics.DO_ACCESS)
+	public void setDO(@DestinationVariable int address, boolean value)
+			throws IOServiceException {
 		checkConnectionOrThrowError();
-		master.sendRequest(new WriteSingleCoilRequest(address, value), 0);
+		master.sendRequest(new WriteSingleCoilRequest(address, value), 0)
+				.thenAcceptAsync(res -> {
+					template.convertAndSend("/topic/doaccess/" + address,
+							value);
+				});;
 	}
 
 	@Override
-	public boolean getDO(int address) throws IOServiceException {
+	@MessageMapping(Topics.DO_ACCESS + "/get")
+	@SendTo("/topic" + Topics.DO_ACCESS)
+	public boolean getDO(@DestinationVariable int address)
+			throws IOServiceException {
 		checkConnectionOrThrowError();
 		try {
 			return master.sendRequest(new ReadCoilsRequest(address, 1), 0)
@@ -115,30 +169,49 @@ public class IOServiceImpl implements IOService {
 	}
 
 	@Override
-	public boolean getDI(int address) throws IOServiceException {
-		checkConnectionOrThrowError();
-		try {
-			return master
-					.sendRequest(new ReadDiscreteInputsRequest(address, 1), 0)
-					.handle((res, ex) -> {
-						ByteBuf buf = ((ReadDiscreteInputsResponse) res)
-								.getInputStatus();
-						byte ans = buf.getByte(0);
-						return (ans & 0x0000001) == 1;
-					}).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new IOServiceException(e);
+	@MessageMapping(Topics.DI + "/get")
+	@SendTo("/topic" + Topics.DI)
+	public boolean getDI(@DestinationVariable int address)
+			throws IOServiceException {
+		if (address < 20) {
+			return previousDI[address];
+		} else {
+			checkConnectionOrThrowError();
+			try {
+				return master
+						.sendRequest(new ReadDiscreteInputsRequest(address, 1),
+								0)
+						.handle((res, ex) -> {
+							ByteBuf buf = ((ReadDiscreteInputsResponse) res)
+									.getInputStatus();
+							byte ans = buf.getByte(0);
+							return (ans & 0x0000001) == 1;
+						}).get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new IOServiceException(e);
+			}
 		}
+
 	}
 
 	@Override
-	public void setAO(int address, int value) throws IOServiceException {
+	@MessageMapping(Topics.AO_ACCESS)
+	public void setAO(@DestinationVariable int address, int value)
+			throws IOServiceException {
 		checkConnectionOrThrowError();
-		master.sendRequest(new WriteSingleRegisterRequest(address, value), 0);
+		master.sendRequest(new WriteSingleRegisterRequest(address, value), 0)
+				.thenAcceptAsync(res -> {
+					template.convertAndSend("/topic/aoaccess/" + address,
+							value);
+				});
+
 	}
 
 	@Override
-	public int getAO(int address) throws IOServiceException {
+	@MessageMapping(Topics.AO_ACCESS + "/get")
+	@SendTo("/topic" + Topics.AO_ACCESS)
+	public int getAO(@DestinationVariable int address)
+			throws IOServiceException {
 		checkConnectionOrThrowError();
 		try {
 			return master

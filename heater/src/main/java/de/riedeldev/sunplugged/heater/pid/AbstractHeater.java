@@ -49,7 +49,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	@Autowired
 	protected SimpMessagingTemplate template = null;
 
-	private final String topic;
+	protected final String topic;
 
 	public AbstractHeater(String name, Parameters parameters, String topic) {
 		this.name = name;
@@ -95,7 +95,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 	}
 
 	protected void setParameters(Parameters parameters) {
-		setPIDValues(parameters.getPreHeaterP(), parameters.getPreHeaterI(),
+		miniPID.setPID(parameters.getPreHeaterP(), parameters.getPreHeaterI(),
 				parameters.getPreHeaterD());
 		setUpdateInterval(parameters.getPreHeaterIntervalLength());
 	}
