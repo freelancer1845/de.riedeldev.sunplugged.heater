@@ -1,0 +1,35 @@
+@import '../../../@theme/styles/themes';
+
+@include nb-install-component() {
+    nb-card {
+      flex-direction: column;
+      align-items: left;
+      overflow: visible;
+  
+      $bevel: btn-hero-bevel(nb-theme(card-bg));
+      $shadow: nb-theme(btn-hero-shadow);
+      box-shadow: $bevel, $shadow;
+
+      .icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 5.75rem;
+        border-radius: nb-theme(card-border-radius);
+      }
+
+      .output {
+        display: flex;
+        font-family: nb-theme(font-secondary);
+        font-size: 1.25rem;
+        font-weight: nb-theme(font-weight-bold);
+        color: nb-theme(card-fg-heading);
+      }
+      .off {
+            color: red;
+      }
+       .on {
+            color: green;
+      }
+    }
+}

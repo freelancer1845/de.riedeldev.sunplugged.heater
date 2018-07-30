@@ -1,0 +1,32 @@
+<nb-card>
+  <nb-card-header>
+    {{title}}
+  </nb-card-header>
+  <nb-card-body>
+    <div class="output" *ngFor="let field of fields">
+      <div *ngIf="!field.isAnalog" [ngClass]="{'on': field.value, 'off': !field.value}">
+        <div *ngIf="field.value" class="icon ion-checkmark">
+        </div>
+        <div *ngIf="!field.value" class="icon ion-close-round">
+        </div>
+      </div>
+      <div class="output text-field" *ngIf="field.isAnalog">
+        <input #text type="text" class="form-control" (focus)="text.value = field.value" placeholder="{{field.value}}">
+        <span class="input-group-append">
+          <button class="btn btn-hero-success input-group-text" (click)="sendValue(field, text.value); text.value = ''">
+            Set
+          </button>
+        </span>
+      </div>
+      <div class="info">
+        {{field.name}}
+      </div>
+      <div *ngIf="!field.readOnly && !field.isAnalog" class="actions">
+        <button *ngIf="!field.isAnalog" class="btn btn-hero-primary btn-tn" (click)="sendValue(field, true)">Set On</button>
+        <button *ngIf="!field.isAnalog" class="btn btn-hero-primary btn-tn" (click)="sendValue(field, false)">Set Off</button>
+      </div>
+
+    </div>
+
+  </nb-card-body>
+</nb-card>
