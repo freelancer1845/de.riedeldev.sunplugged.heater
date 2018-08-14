@@ -9,8 +9,13 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Input Output',
-    icon: 'nb-home',
+    icon: 'nb-list',
     link: '/pages/inputoutput'
+  },
+  {
+    title: 'Heater PID Overview',
+    icon: 'nb-gear',
+    link: '/pages/heateroverview'
   },
   {
     title: 'FEATURES',

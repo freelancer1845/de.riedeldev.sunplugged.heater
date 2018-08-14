@@ -11,6 +11,9 @@ import { DigitalInputsComponent } from './inputoutput/digital-inputs/digital-inp
 import { AnalogOutputsComponent } from './inputoutput/analog-outputs/analog-outputs.component';
 import { AnalogInputsComponent } from './inputoutput/analog-inputs/analog-inputs.component';
 import { IocardComponent } from './inputoutput/iocard/iocard.component';
+import { PidcardComponent } from './pidcard/pidcard.component';
+import { HeateroverviewComponent } from './heateroverview/heateroverview.component';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 const PAGES_COMPONENTS = [
   PagesComponent,
@@ -22,6 +25,7 @@ const PAGES_COMPONENTS = [
     ThemeModule,
     DashboardModule,
     MiscellaneousModule,
+    NgxEchartsModule
   ],
   declarations: [
     ...PAGES_COMPONENTS,
@@ -31,6 +35,8 @@ const PAGES_COMPONENTS = [
     AnalogOutputsComponent,
     AnalogInputsComponent,
     IocardComponent,
+    PidcardComponent,
+    HeateroverviewComponent,
   ],
 })
 export class PagesModule {

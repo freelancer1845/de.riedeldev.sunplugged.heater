@@ -1,0 +1,17 @@
+<nb-card>
+  <nb-card-header>
+    {{title}}
+  </nb-card-header>
+  <nb-card-body>
+    <div  echarts [options]="options" [merge]="updateOptions" class="echart"></div>
+    <div class="form-group">
+      <ngx-digitalfield [state]="status.on" (emitter)="onSet({'on': $event})">On</ngx-digitalfield>
+      <ngx-digitalfield [state]="status.controlling" (emitter)="onSet({'controlling': $event})">PID Controlling</ngx-digitalfield>
+      <ngx-analogtext [name]="'Target Temperature'" [isReadOnly]="false" (setvalue)="onSet({'targetTemperature': $event})" [placeholder]="status.targetTemperature">{{status.targetTemperature}}</ngx-analogtext>
+      <ngx-analogtext [name]="'Current Temperature'" [isReadOnly]="true" [placeholder]="status.currentTemperature">{{status.currentTemperature}}</ngx-analogtext>
+      <ngx-analogtext [name]="'Current Power'" [isReadOnly]="true" [placeholder]="status.power">{{status.power}}</ngx-analogtext>
+    </div>
+  </nb-card-body>
+
+
+</nb-card>

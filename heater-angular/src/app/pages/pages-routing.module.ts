@@ -5,6 +5,7 @@ import { PagesComponent } from './pages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 import { InputoutputComponent } from './inputoutput/inputoutput.component';
+import { HeateroverviewComponent } from './heateroverview/heateroverview.component';
 
 const routes: Routes = [{
   path: '',
@@ -13,6 +14,10 @@ const routes: Routes = [{
     {
       path: 'inputoutput',
       component: InputoutputComponent
+    },
+    {
+      path: 'heateroverview',
+      component: HeateroverviewComponent
     },
     {
       path: 'dashboard',

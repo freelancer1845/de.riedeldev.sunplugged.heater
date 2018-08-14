@@ -65,7 +65,7 @@ export class DigitalInputsComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 8; i++) {
       this.fields.push({name: "DI " + i, value: false, topic: 'di/' + i, readOnly: true});
     }
   }

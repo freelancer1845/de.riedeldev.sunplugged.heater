@@ -3,29 +3,25 @@
     {{title}}
   </nb-card-header>
   <nb-card-body>
-    <div class="output" *ngFor="let field of fields">
-      <div *ngIf="!field.isAnalog" [ngClass]="{'on': field.value, 'off': !field.value}">
-        <div *ngIf="field.value" class="icon ion-checkmark">
+    <div *ngFor="let field of fields">
+      <div class="output" *ngIf="!field.isAnalog">
+          <div *ngIf="!field.isAnalog" [ngClass]="{'on': field.value, 'off': !field.value}">
+          <div *ngIf="field.value" class="icon ion-checkmark">
+          </div>
+          <div *ngIf="!field.value" class="icon ion-close-round">
+          </div>
         </div>
-        <div *ngIf="!field.value" class="icon ion-close-round">
+        <div *ngIf="!field.isAnalog" class="info">
+          {{field.name}}
         </div>
-      </div>
-      <div class="output text-field" *ngIf="field.isAnalog">
-        <input #text type="text" class="form-control" (focus)="text.value = field.value" placeholder="{{field.value}}">
-        <span class="input-group-append">
-          <button class="btn btn-hero-success input-group-text" (click)="sendValue(field, text.value); text.value = ''">
-            Set
-          </button>
-        </span>
-      </div>
-      <div class="info">
-        {{field.name}}
-      </div>
-      <div *ngIf="!field.readOnly && !field.isAnalog" class="actions">
-        <button *ngIf="!field.isAnalog" class="btn btn-hero-primary btn-tn" (click)="sendValue(field, true)">Set On</button>
-        <button *ngIf="!field.isAnalog" class="btn btn-hero-primary btn-tn" (click)="sendValue(field, false)">Set Off</button>
+        <div *ngIf="!field.readOnly && !field.isAnalog" class="actions">
+          <button *ngIf="!field.isAnalog" class="btn btn-hero-primary btn-tn" (click)="sendValue(field, true)">Set On</button>
+          <button *ngIf="!field.isAnalog" class="btn btn-hero-primary btn-tn" (click)="sendValue(field, false)">Set Off</button>
+        </div>
       </div>
 
+      <ngx-analogtext *ngIf="field.isAnalog" [name]="field.name" [isReadOnly]="field.readOnly" [placeholder]="field.value" (setvalue)="sendValue(field, $event)">{{field.value}}</ngx-analogtext>
+      
     </div>
 
   </nb-card-body>

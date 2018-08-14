@@ -9,19 +9,15 @@ import { IOField } from '../iocard/iocard.component';
 export class AnalogOutputsComponent implements OnInit {
 
   title = "Analog Outputs";
-  fields:IOField[] = [
-    {
-      name: "Power Pre Heater One",
-      value: "0",
-      topic: "aoaccess/1",
-      isAnalog: true
-    }
-    
+  fields: IOField[] = [
   ];
 
   constructor() { }
 
   ngOnInit() {
+    for (let i = 0; i < 4; i++) {
+      this.fields.push({ name: "AO " + i, value: false, topic: 'aoaccess/' + i, isAnalog: true, readOnly: false });
+    }
   }
 
 }

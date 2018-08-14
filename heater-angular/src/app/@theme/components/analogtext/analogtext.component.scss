@@ -1,0 +1,32 @@
+@import '../../../@theme/styles/themes';
+@import '~bootstrap/scss/mixins/breakpoints';
+@import '~@nebular/theme/styles/global/bootstrap/breakpoints';
+
+
+@include nb-install-component() {
+  .output {
+      display: flex;
+      width: 100%;
+      font-family: nb-theme(font-secondary);
+      font-size: 1.25rem;
+      font-weight: nb-theme(font-weight-bold);
+      color: nb-theme(card-fg-heading);
+      //margin:  0.5rem 0 0.5rem 0;
+      justify-content: space-between;
+    }
+
+  .text-field {
+    display: flex;
+    justify-content: space-between;
+  }
+  .analog-value {
+      width: 8rem;
+    }
+
+  .info {
+  
+    margin-top: auto;
+    margin-bottom: auto;
+    // padding: 1.113rem;
+  }
+}

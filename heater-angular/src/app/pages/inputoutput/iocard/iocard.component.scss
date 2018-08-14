@@ -37,6 +37,15 @@
         justify-content: space-between;
       }
 
+      .analog-value {
+        display: flex;
+        margin-top: auto;
+        margin-bottom: auto;
+        width: 8rem;
+        color: nb-theme(form-control-text-primary-color);
+        font-size: nb-theme(form-control-font-size-sm);
+      }
+
       .text-field {
         //width: 100%;
       }

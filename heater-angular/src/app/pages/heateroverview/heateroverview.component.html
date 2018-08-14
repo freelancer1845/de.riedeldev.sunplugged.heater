@@ -1,0 +1,5 @@
+<div class="row">
+    <div *ngFor="let heater of heaters; let i = index;" class="col-lg-6">
+        <ngx-pidcard [title]="heater.name" [topic]="heater.topic"></ngx-pidcard>
+    </div>
+</div>

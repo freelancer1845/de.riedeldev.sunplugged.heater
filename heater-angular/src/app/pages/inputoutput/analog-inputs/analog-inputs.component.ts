@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { IOField } from '../iocard/iocard.component';
 
 @Component({
   selector: 'ngx-analog-inputs',
@@ -7,7 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AnalogInputsComponent implements OnInit {
 
-  constructor() { }
+  title = "Analog Inputs";
+  fields:IOField[] = [];
+
+  constructor() {
+    for (let i = 0; i < 4; i++) {
+      this.fields.push({name: "AI " + i, value: false, topic: 'ai/' + i,isAnalog: true, readOnly: true});
+    }
+   }
 
   ngOnInit() {
   }
