@@ -41,6 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IOServiceImpl implements IOService {
 
+	private static final int MAX_DIGITAL_INPUTS = 8;
+
+	private static final int MAX_ANALOG_INPUTS = 4;
+
 	private ApplicationEventPublisher publisher;
 
 	@Autowired
@@ -68,19 +72,21 @@ public class IOServiceImpl implements IOService {
 		disconnectedFromModubsTCP();
 	}
 
-	private boolean[] previousDI = new boolean[20];
+	private boolean[] previousDI = new boolean[MAX_DIGITAL_INPUTS];
+	private int[] previousAI = new int[MAX_ANALOG_INPUTS];
 
 	@Scheduled(fixedRate = 100)
 	public void publishInputValues() {
 		if (master != null) {
-			master.sendRequest(new ReadDiscreteInputsRequest(0, 20), 0)
+			master.sendRequest(
+					new ReadDiscreteInputsRequest(0, MAX_DIGITAL_INPUTS), 0)
 					.thenAccept(res -> {
 						ReadDiscreteInputsResponse response = (ReadDiscreteInputsResponse) res;
 						ByteBuf buf = response.getInputStatus();
 						int currentByte = 0;
 						int bitsRead = 0;
 						byte ans = buf.getByte(currentByte);
-						for (int i = 0; i < 20; i++) {
+						for (int i = 0; i < MAX_DIGITAL_INPUTS; i++) {
 							if (bitsRead == 8) {
 								bitsRead = 0;
 								currentByte++;
@@ -96,6 +102,22 @@ public class IOServiceImpl implements IOService {
 							}
 							bitsRead++;
 
+						}
+					});
+			master.sendRequest(
+					new ReadInputRegistersRequest(0, MAX_ANALOG_INPUTS), 0)
+					.thenAccept(res -> {
+						ReadInputRegistersResponse response = (ReadInputRegistersResponse) res;
+						ByteBuf buf = response.getRegisters();
+						for (int i = 0; i < MAX_ANALOG_INPUTS; i++) {
+							int value = buf.readUnsignedShort();
+							if (previousAI[i] != value) {
+								String path = UriComponentsBuilder
+										.fromPath("/topic").path(Topics.AI)
+										.buildAndExpand(i).toString();
+								template.convertAndSend(path, value);
+								previousAI[i] = value;
+							}
 						}
 					});
 		}
@@ -229,7 +251,10 @@ public class IOServiceImpl implements IOService {
 	}
 
 	@Override
-	public int getAI(int address) throws IOServiceException {
+	@MessageMapping(Topics.AI + "/get")
+	@SendTo("/topic" + Topics.AI)
+	public int getAI(@DestinationVariable int address)
+			throws IOServiceException {
 		checkConnectionOrThrowError();
 		try {
 			return master

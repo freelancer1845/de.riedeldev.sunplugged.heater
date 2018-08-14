@@ -25,7 +25,7 @@ public class PidView extends VerticalLayout implements View {
 	private static final long serialVersionUID = 4423719416277671758L;
 
 	@Autowired
-	@Qualifier("preHeaterOne")
+	@Qualifier("mainHeaterOne")
 	private Heater heater;
 
 	private PIDComponent pidComponent;

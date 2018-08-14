@@ -34,13 +34,14 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 	@Override
 	public void on() {
 		isOn = true;
-
+		sendNewStatus();
 	}
 
 	@Override
 	public void off() throws IOServiceException {
 		ioService.setAO(analogOutput, 0);
 		isOn = false;
+		sendNewStatus();
 	}
 
 	@Override

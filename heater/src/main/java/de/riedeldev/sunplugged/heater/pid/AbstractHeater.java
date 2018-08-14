@@ -6,13 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import de.riedeldev.sunplugged.heater.config.ParameterChangeEvent;
 import de.riedeldev.sunplugged.heater.config.Parameters;
+import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,7 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 
 	protected MiniPID miniPID = new MiniPID(1.0, 1.0, 1.0);
 
-	private double updateInterval = 0.0;
+	private double updateInterval = 1;
 
 	protected final String name;
 
@@ -67,29 +66,38 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 		setParameters(event.getNewParameters());
 	}
 
-	@MessageMapping
-	public void onMessage(Message<HeaterStatus> message) {
-		if (message.getHeaders()
-				.get(SimpMessageHeaderAccessor.DESTINATION_HEADER)
-				.equals(topic)) {
-			HeaterStatus status = message.getPayload();
-			handleNewStatus(status);
-
-		}
+	public String getTopic() {
+		return this.topic;
 	}
 
-	protected void handleNewStatus(HeaterStatus status) {
-		if (status.getPower() != getPower()) {
+	public void handleNewStatus(HeaterStatus status) throws IOServiceException {
+		if (status.getOn() != null && status.getOn() != isOn()) {
+			if (status.getOn() == true) {
+				on();
+			} else {
+				off();
+			}
+		}
+		if (status.getControlling() != null
+				&& status.getControlling() != isControlling()) {
+			if (status.getControlling() == true) {
+				activateControlling();
+			} else {
+				deactivateControlling();
+			}
+		}
+		if (status.getPower() != null && status.getPower() != getPower()) {
 			setPower(status.getPower());
 		}
-		if (status.getP() != miniPID.getP()) {
+		if (status.getP() != null && status.getP() != miniPID.getP()) {
 			setPIDValues(status.getP(), status.getI(), status.getD());
-		} else if (status.getI() != miniPID.getI()) {
+		} else if (status.getI() != null && status.getI() != miniPID.getI()) {
 			setPIDValues(status.getP(), status.getI(), status.getD());
-		} else if (status.getD() != miniPID.getD()) {
+		} else if (status.getD() != null && status.getD() != miniPID.getD()) {
 			setPIDValues(status.getP(), status.getI(), status.getD());
 		}
-		if (status.getTargetTemperature() != getTargetTemperature()) {
+		if (status.getTargetTemperature() != null
+				&& status.getTargetTemperature() != getTargetTemperature()) {
 			setTargetTemperature(status.getTargetTemperature());
 		}
 	}
@@ -135,24 +143,25 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 				try {
 					change = miniPID.getOutput(getCurrentTemperature());
 					submitChange(change);
-
-					if (publisher != null) {
-						publisher.publishEvent(HeaterStatusEvent.getFor(this));
-					}
+					// if (publisher != null) {
+					// publisher.publishEvent(HeaterStatusEvent.getFor(this));
+					// }
 				} catch (IOServiceException e) {
 					log.error("Heater PID Loop crashed because of IOException",
 							e);
 				}
 
-			} else {
-				synchronized (waitObject) {
-					try {
-						waitObject.wait();
-					} catch (InterruptedException e) {
-						break;
-					}
-				}
 			}
+			// else {
+			// synchronized (waitObject) {
+			// try {
+			// waitObject.wait();
+			// } catch (InterruptedException e) {
+			// break;
+			// }
+			// }
+			// }
+			sendNewStatus();
 
 			long timePassed = System.currentTimeMillis() - lastTime;
 			if (timePassed < 0) {
@@ -273,10 +282,13 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 			currentTemperature = Double.NaN;
 		}
 		HeaterStatus status = new HeaterStatus(isOn(), isControlling(),
-				getPower(), miniPID.getP(), miniPID.getI(), miniPID.getD(),
-				getTargetTemperature(), currentTemperature);
+				getPower(), getTargetTemperature(), currentTemperature,
+				miniPID.getP(), miniPID.getI(), miniPID.getD());
 		if (template != null) {
-			template.convertAndSend(topic, status);
+			String path = UriComponentsBuilder.fromPath("/topic")
+					.path(Topics.HEATER_ACCESS).buildAndExpand(topic)
+					.toString();
+			template.convertAndSend(path, status);
 		}
 
 	}

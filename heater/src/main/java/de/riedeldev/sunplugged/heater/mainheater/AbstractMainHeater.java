@@ -112,6 +112,7 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 
 			}
 		}
+		sendNewStatus();
 
 	}
 
@@ -123,6 +124,7 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 	@Override
 	public void off() {
 		on = false;
+		sendNewStatus();
 	}
 
 	@Override

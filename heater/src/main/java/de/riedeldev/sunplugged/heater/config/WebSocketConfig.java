@@ -42,17 +42,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 		public static final String HEATER_TWO_TEMPERATURE = "/heaterTwoTemperature";
 		public static final String HEATER_FAN_ONE_POWER = "/heaterFanOnePower";
 		public static final String HEATER_FAN_TWO_POWER = "/heaterFanTwoPower";
-		public static final String PRE_HEATER_ONE = "/preHeaterOne";
-		public static final String PRE_HEATER_TWO = "/preHeaterTwo";
-		public static final String MAIN_HEATER_ONE = "/mainHeaterOne";
-		public static final String MAIN_HEATER_TWO = "/mainHeaterTwo";
-		public static final String MAIN_HEATER_THREE = "/mainHeaterThree";
+
+		public static final String HEATER_ACCESS = "/heater/{topic}";
+		public static final String PRE_HEATER_ONE = "preHeaterOne";
+		public static final String PRE_HEATER_TWO = "preHeaterTwo";
+		public static final String MAIN_HEATER_ONE = "mainHeaterOne";
+		public static final String MAIN_HEATER_TWO = "mainHeaterTwo";
+		public static final String MAIN_HEATER_THREE = "mainHeaterThree";
 
 		public static final String TOPIC_CHANGE_COIL = "/changecoil";
 		public static final String TOPIC_CHNGE_AO = "/changeao";
 		public static final String AO_ACCESS = "/aoaccess/{address}";
 		public static final String DO_ACCESS = "/doaccess/{address}";
 		public static final String DI = "/di/{address}";
+		public static final String AI = "/ai/{address}";
+
 		private Topics() {
 		}
 	}
