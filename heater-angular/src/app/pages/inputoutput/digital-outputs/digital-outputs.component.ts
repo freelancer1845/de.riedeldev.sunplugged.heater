@@ -12,7 +12,7 @@ export class DigitalOutputsComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 8; i++) {
       this.fields.push({name: "DO " + i, topic: "doaccess/" + i, value: false})
     }
   }
