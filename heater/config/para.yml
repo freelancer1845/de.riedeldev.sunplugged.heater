@@ -1,3 +1,4 @@
+modbus_host: 192.168.178.16
 preHeaterP: 1.0
 preHeaterI: 2234.0
 preHeaterD: 5.0

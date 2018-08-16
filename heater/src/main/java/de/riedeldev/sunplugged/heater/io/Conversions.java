@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Conversions {
 
-	private static int bit16 = (int) (Math.pow(2, 16) - 1);
+	private static int bit16 = (int) (Math.pow(2, 16) / 2 - 2);
 
 	/*
 	 * -100 = m * 0 + c 1370 = m * bit16 - 100

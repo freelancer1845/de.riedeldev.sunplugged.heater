@@ -41,9 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IOServiceImpl implements IOService {
 
-	private static final int MAX_DIGITAL_INPUTS = 8;
+	private static final int MAX_DIGITAL_INPUTS = 12;
 
 	private static final int MAX_ANALOG_INPUTS = 4;
+
+	private static final int WATCH_DOG_TIMER_ADDRESS = 0x1120;
+	private static final int WATCH_DOG_LENGTH = 10000;
 
 	private ApplicationEventPublisher publisher;
 
@@ -75,7 +78,7 @@ public class IOServiceImpl implements IOService {
 	private boolean[] previousDI = new boolean[MAX_DIGITAL_INPUTS];
 	private int[] previousAI = new int[MAX_ANALOG_INPUTS];
 
-	@Scheduled(fixedRate = 100)
+	@Scheduled(fixedRate = 500)
 	public void publishInputValues() {
 		if (master != null) {
 			master.sendRequest(
@@ -120,6 +123,7 @@ public class IOServiceImpl implements IOService {
 							}
 						}
 					});
+			resetWatchDog();
 		}
 	}
 
@@ -141,6 +145,20 @@ public class IOServiceImpl implements IOService {
 	}
 
 	private void handleConnect(ModbusTcpMaster tcpMaster, Throwable ex) {
+		try {
+			tcpMaster
+					.sendRequest(
+							new WriteSingleRegisterRequest(
+									WATCH_DOG_TIMER_ADDRESS, WATCH_DOG_LENGTH),
+							0)
+					.get();
+			// tcpMaster.sendRequest(
+			// new WriteMultipleRegistersRequest(WATCH_DOG_TIMER_ADDRESS,
+			// 2, intergerToShortByte(WATCH_DOG_LENGTH)),
+			// 0).get();
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("Failed to set WatchDOG!", e);
+		}
 		if (ex != null) {
 			publisher.publishEvent(new IOServiceEvent(this, Type.ERROR, ex));
 		} else {
@@ -148,6 +166,18 @@ public class IOServiceImpl implements IOService {
 			publisher.publishEvent(
 					new IOServiceEvent(this, Type.CONNECTED, null));
 		}
+	}
+
+	private void resetWatchDog() {
+		try {
+			master.sendRequest(new WriteSingleRegisterRequest(0x1121, 0xBECF),
+					1).get();
+			master.sendRequest(new WriteSingleRegisterRequest(0x1121, 0xAFFE),
+					0).get();
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("Failed to reset Watchdog!", e);
+		}
+
 	}
 
 	private void handleDisconnect(ModbusTcpMaster tcpmaster, Throwable ex) {
@@ -181,6 +211,10 @@ public class IOServiceImpl implements IOService {
 		try {
 			return master.sendRequest(new ReadCoilsRequest(address, 1), 0)
 					.handle((res, ex) -> {
+						if (res == null) {
+							log.error("Error while getting DO.", ex);
+							return false;
+						}
 						ByteBuf buf = ((ReadCoilsResponse) res).getCoilStatus();
 						byte ans = buf.getByte(0);
 						return (ans & 0x0000001) == 1;
@@ -221,12 +255,29 @@ public class IOServiceImpl implements IOService {
 	public void setAO(@DestinationVariable int address, int value)
 			throws IOServiceException {
 		checkConnectionOrThrowError();
-		master.sendRequest(new WriteSingleRegisterRequest(address, value), 0)
-				.thenAcceptAsync(res -> {
+
+		// master.sendRequest(new WriteMultipleRegistersRequest(
+		// (address * 16 + 16) + 2049, 1, intergerToShortByte(value)), 0)
+		// .whenComplete((res, ex) -> {
+		// if (res == null) {
+		// log.error("failed to write ao", ex);
+		// }
+		// template.convertAndSend("/topic/aoaccess/" + address,
+		// value);
+		// });
+		master.sendRequest(new WriteSingleRegisterRequest(
+				((address * 2) + 9) + 2048, value), 0).thenAcceptAsync(res -> {
 					template.convertAndSend("/topic/aoaccess/" + address,
 							value);
 				});
 
+	}
+
+	private byte[] intergerToShortByte(int value) {
+		byte[] buf = new byte[2];
+		buf[0] = (byte) value;
+		buf[1] = (byte) (value >>> 8);
+		return buf;
 	}
 
 	@Override
@@ -236,8 +287,8 @@ public class IOServiceImpl implements IOService {
 			throws IOServiceException {
 		checkConnectionOrThrowError();
 		try {
-			return master
-					.sendRequest(new ReadHoldingRegistersRequest(address, 1), 0)
+			return master.sendRequest(
+					new ReadHoldingRegistersRequest(address + 2048, 1), 0)
 					.handle((res, ex) -> {
 						ByteBuf buf = ((ReadHoldingRegistersResponse) res)
 								.getRegisters();
@@ -260,6 +311,9 @@ public class IOServiceImpl implements IOService {
 			return master
 					.sendRequest(new ReadInputRegistersRequest(address, 1), 0)
 					.handle((res, ex) -> {
+						if (res == null) {
+							log.error("Communication error reading AI:", ex);
+						}
 						ByteBuf buf = ((ReadInputRegistersResponse) res)
 								.getRegisters();
 

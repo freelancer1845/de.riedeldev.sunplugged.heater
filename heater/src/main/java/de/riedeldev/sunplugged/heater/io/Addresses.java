@@ -10,9 +10,9 @@ public class Addresses {
 	public static final int MAIN_HEATER_ONE_AI = 2;
 	public static final int MAIN_HEATER_TWO_AI = 3;
 	public static final int MAIN_HEATER_THREE_AI = 4;
-	public static final int MAIN_HEATER_ONE_DO = 10;
-	public static final int MAIN_HEATER_TOW_DO = 11;
-	public static final int MAIN_HEATER_THREE_DO = 12;
+	public static final int MAIN_HEATER_ONE_DO = 6;
+	public static final int MAIN_HEATER_TOW_DO = 7;
+	public static final int MAIN_HEATER_THREE_DO = 8;
 
 	public static final int HEATER_FAN_ONE = 2;
 	public static final int HEATER_FAN_TWO = 3;
