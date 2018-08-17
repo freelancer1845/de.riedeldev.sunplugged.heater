@@ -44,7 +44,7 @@ public class HeaterApplication extends SpringBootServletInitializer {
 	}
 
 	@Bean
-	BK9000 getBK9000() {
+	BK9000 BK9000() {
 		return new BK9000Builder().with(new KL4004()).build();
 	}
 }
