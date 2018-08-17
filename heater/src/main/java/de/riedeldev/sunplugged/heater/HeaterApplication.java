@@ -13,6 +13,10 @@ import org.vaadin.spring.events.EventBus.ApplicationEventBus;
 import org.vaadin.spring.events.internal.ScopedEventBus;
 import org.vaadin.spring.events.support.ApplicationContextEventBroker;
 
+import de.riedeldev.sunplugged.beckhoff.bk9000.BK9000;
+import de.riedeldev.sunplugged.beckhoff.bk9000.BK9000.BK9000Builder;
+import de.riedeldev.sunplugged.beckhoff.kl4xxx.KL4004;
+
 @SpringBootApplication
 @EnableScheduling
 public class HeaterApplication extends SpringBootServletInitializer {
@@ -37,5 +41,10 @@ public class HeaterApplication extends SpringBootServletInitializer {
 	@Bean
 	ApplicationContextEventBroker applicationContextEventBroker() {
 		return new ApplicationContextEventBroker(eventBus);
+	}
+
+	@Bean
+	BK9000 getBK9000() {
+		return new BK9000Builder().with(new KL4004()).build();
 	}
 }
