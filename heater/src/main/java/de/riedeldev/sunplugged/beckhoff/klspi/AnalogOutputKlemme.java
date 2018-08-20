@@ -12,8 +12,12 @@ public interface AnalogOutputKlemme extends AnalogInputKlemme {
 	 *            you want to set. On a 0-10V Klemme use 0-10V and so forth.
 	 * @return True if successful...
 	 */
-	CompletableFuture<Void> setOutput(int number, double value);
+	CompletableFuture<Void> set(int number, double value);
 
 	int outputs();
+
+	default int inputs() {
+		throw new UnsupportedOperationException();
+	};
 
 }

@@ -167,17 +167,17 @@ public class MachineStatusImpl implements MachineStatus {
 
 	@Scheduled(fixedRateString = "${publish.status.interval}", initialDelay = 5000)
 	public void publishStatus() {
-		if (publishStatus == true) {
-			try {
-				if (newConnected == true) {
-					oldValuesList.clear();
-					newConnected = false;
-				}
-				MachineStatusSnapshot.create(this);
-			} catch (IOServiceException e) {
-				e.printStackTrace();
-			}
-		}
+		// if (publishStatus == true) {
+		// try {
+		// if (newConnected == true) {
+		// oldValuesList.clear();
+		// newConnected = false;
+		// }
+		// MachineStatusSnapshot.create(this);
+		// } catch (IOServiceException e) {
+		// e.printStackTrace();
+		// }
+		// }
 	}
 
 	@Override

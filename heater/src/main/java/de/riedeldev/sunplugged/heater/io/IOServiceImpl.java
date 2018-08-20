@@ -13,8 +13,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
@@ -30,16 +28,17 @@ import com.digitalpetri.modbus.responses.ReadDiscreteInputsResponse;
 import com.digitalpetri.modbus.responses.ReadHoldingRegistersResponse;
 import com.digitalpetri.modbus.responses.ReadInputRegistersResponse;
 
+import de.riedeldev.sunplugged.beckhoff.bk9000.BK9000;
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.IOServiceEvent.Type;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
-@Controller
+//@Service
+//@Controller
 @Slf4j
-public class IOServiceImpl implements IOService {
+public class IOServiceImpl {
 
 	private static final int MAX_DIGITAL_INPUTS = 12;
 
@@ -62,6 +61,9 @@ public class IOServiceImpl implements IOService {
 	private Object connectingWaitLock = new Object();
 
 	private Parameters parameters;
+
+	@Autowired
+	private BK9000 bk9000;
 
 	@Autowired
 	public IOServiceImpl(Parameters parameters,
@@ -190,7 +192,6 @@ public class IOServiceImpl implements IOService {
 		}
 	}
 
-	@Override
 	@MessageMapping(Topics.DO_ACCESS)
 	public void setDO(@DestinationVariable int address, boolean value)
 			throws IOServiceException {
@@ -202,7 +203,6 @@ public class IOServiceImpl implements IOService {
 				});;
 	}
 
-	@Override
 	@MessageMapping(Topics.DO_ACCESS + "/get")
 	@SendTo("/topic" + Topics.DO_ACCESS)
 	public boolean getDO(@DestinationVariable int address)
@@ -224,7 +224,6 @@ public class IOServiceImpl implements IOService {
 		}
 	}
 
-	@Override
 	@MessageMapping(Topics.DI + "/get")
 	@SendTo("/topic" + Topics.DI)
 	public boolean getDI(@DestinationVariable int address)
@@ -250,7 +249,6 @@ public class IOServiceImpl implements IOService {
 
 	}
 
-	@Override
 	@MessageMapping(Topics.AO_ACCESS)
 	public void setAO(@DestinationVariable int address, int value)
 			throws IOServiceException {
@@ -280,7 +278,6 @@ public class IOServiceImpl implements IOService {
 		return buf;
 	}
 
-	@Override
 	@MessageMapping(Topics.AO_ACCESS + "/get")
 	@SendTo("/topic" + Topics.AO_ACCESS)
 	public int getAO(@DestinationVariable int address)
@@ -301,7 +298,6 @@ public class IOServiceImpl implements IOService {
 		}
 	}
 
-	@Override
 	@MessageMapping(Topics.AI + "/get")
 	@SendTo("/topic" + Topics.AI)
 	public int getAI(@DestinationVariable int address)

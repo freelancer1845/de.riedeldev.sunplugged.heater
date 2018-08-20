@@ -51,7 +51,7 @@ public abstract class AbstractPreHeater extends AbstractHeater {
 
 	@Override
 	public double getCurrentTemperature() throws IOServiceException {
-		return Conversions.typeKConversion(ioService.getAI(analogInput));
+		return ioService.getAI(analogInput);
 	}
 	@Override
 	public void forcePower(double power) throws IOServiceException {

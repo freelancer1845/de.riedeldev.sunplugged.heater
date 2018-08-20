@@ -1,34 +1,37 @@
-package de.riedeldev.sunplugged.beckhoff.kl4xxx;
+package de.riedeldev.sunplugged.beckhoff.kl3xxx;
 
 import java.util.concurrent.CompletableFuture;
 
 import com.digitalpetri.modbus.requests.ReadInputRegistersRequest;
-import com.digitalpetri.modbus.requests.WriteSingleRegisterRequest;
 import com.digitalpetri.modbus.responses.ReadInputRegistersResponse;
 
 import de.riedeldev.sunplugged.beckhoff.klspi.AbstractClamp;
-import de.riedeldev.sunplugged.beckhoff.klspi.AnalogOutputKlemme;
+import de.riedeldev.sunplugged.beckhoff.klspi.AnalogInputKlemme;
 import de.riedeldev.sunplugged.beckhoff.klspi.Configurator;
 
-public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
+public class KL3064 extends AbstractClamp implements AnalogInputKlemme {
 
-	private static final int ADDRESS_SPACE_SIZE = 8;
-	private static final int OUTPUTS = 4;
+	private static final int ADDRESS_SPACE_SIZE = 4;
+
+	private Double[] maxValueForInput = {10.0, 10.0, 10.0, 10.0};
 
 	private Configurator configurator = new Configurator(master,
 			writeAddressOffset);
 
-	private Double[] maxValueForOutput = {10.0, 10.0, 10.0, 10.0};
-
-	public KL4004(String id) {
+	public KL3064(String id) {
 		super(ADDRESS_SPACE_SIZE, ADDRESS_SPACE_SIZE, id);
-
 	}
 
 	@Override
-	public void setOutputOffset(int offset) {
-		super.setOutputOffset(offset);
-		this.configurator = new Configurator(master, offset);
+	public CompletableFuture<Double> read(int number) {
+		return master
+				.sendRequest(new ReadInputRegistersRequest(
+						readAddressOffset + number + 1, 1), 0)
+				.thenApply(res -> {
+					ReadInputRegistersResponse response = (ReadInputRegistersResponse) res;
+					int value = response.getRegisters().getShort(0);
+					return convertRegisterValueToVoltage(number, value);
+				});
 	}
 
 	public void setUserScaling(boolean on) {
@@ -65,38 +68,9 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 		});
 	}
 
-	@Override
-	public CompletableFuture<Double> read(int number) {
-		return master
-				.sendRequest(
-						new ReadInputRegistersRequest(readAddressOffset, 1), 0)
-				.thenApply(res -> {
-					ReadInputRegistersResponse response = (ReadInputRegistersResponse) res;
-
-					int result = response.getRegisters().getShort(0);
-					return convertRegisterValueToVoltage(number, result);
-				});
-	}
-
-	@Override
-	public CompletableFuture<Void> set(int number, double value) {
-		return master
-				.sendRequest(
-						new WriteSingleRegisterRequest(
-								writeAddressOffset + (number * 2) + 1,
-								convertVoltageToRegisterValue(number, value)),
-						0)
-				.thenAccept(res -> {
-				});
-	}
-
-	private int convertVoltageToRegisterValue(int number, double value) {
-		return (int) ((value / maxValueForOutput[number]) * Short.MAX_VALUE);
-	}
-
 	private double convertRegisterValueToVoltage(int number, int value) {
 		return (((double) value / (double) Short.MAX_VALUE)
-				* maxValueForOutput[number]);
+				* maxValueForInput[number]);
 	}
 
 	private void activateUserScaling() {
@@ -142,8 +116,8 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 	}
 
 	@Override
-	public int outputs() {
-		return OUTPUTS;
+	public int inputs() {
+		return 4;
 	}
 
 }

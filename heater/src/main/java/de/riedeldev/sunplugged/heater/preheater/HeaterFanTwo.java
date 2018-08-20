@@ -20,8 +20,7 @@ public class HeaterFanTwo implements HeaterFan {
 
 	@Override
 	public double getPower() throws IOServiceException {
-		return Conversions.unsingedIntToUnsingedVoltage(
-				ioService.getAO(Addresses.HEATER_FAN_TWO)) / 10.0;
+		return ioService.getAO(Addresses.HEATER_FAN_TWO) / 10.0;
 	}
 
 	@Override

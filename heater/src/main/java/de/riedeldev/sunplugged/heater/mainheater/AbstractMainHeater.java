@@ -3,7 +3,6 @@ package de.riedeldev.sunplugged.heater.mainheater;
 import javax.annotation.PostConstruct;
 
 import de.riedeldev.sunplugged.heater.config.Parameters;
-import de.riedeldev.sunplugged.heater.io.Conversions;
 import de.riedeldev.sunplugged.heater.io.IOService;
 import de.riedeldev.sunplugged.heater.io.IOServiceException;
 import de.riedeldev.sunplugged.heater.pid.AbstractHeater;
@@ -118,7 +117,7 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 
 	@Override
 	public double getCurrentTemperature() throws IOServiceException {
-		return Conversions.typeKConversion(ioService.getAI(temperatureInput));
+		return ioService.getAI(temperatureInput);
 	}
 
 	@Override

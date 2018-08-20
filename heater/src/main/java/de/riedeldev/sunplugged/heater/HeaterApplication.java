@@ -15,6 +15,9 @@ import org.vaadin.spring.events.support.ApplicationContextEventBroker;
 
 import de.riedeldev.sunplugged.beckhoff.bk9000.BK9000;
 import de.riedeldev.sunplugged.beckhoff.bk9000.BK9000.BK9000Builder;
+import de.riedeldev.sunplugged.beckhoff.kl1xxx.KL1104;
+import de.riedeldev.sunplugged.beckhoff.kl2xxx.KL2114;
+import de.riedeldev.sunplugged.beckhoff.kl3xxx.KL3064;
 import de.riedeldev.sunplugged.beckhoff.kl4xxx.KL4004;
 
 @SpringBootApplication
@@ -45,6 +48,11 @@ public class HeaterApplication extends SpringBootServletInitializer {
 
 	@Bean
 	BK9000 BK9000() {
-		return new BK9000Builder().with(new KL4004()).build();
+		BK9000 bk = new BK9000Builder().with(new KL1104("1"))
+				.with(new KL1104("2")).with(new KL1104("3"))
+				.with(new KL2114("4")).with(new KL2114("5"))
+				.with(new KL3064("6")).with(new KL4004("7")).build();
+		bk.connect("localhost", 502);
+		return bk;
 	}
 }

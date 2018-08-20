@@ -3,58 +3,148 @@ package de.riedeldev.sunplugged.beckhoff.bk9000;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
 import com.digitalpetri.modbus.master.ModbusTcpMasterConfig;
+import com.digitalpetri.modbus.requests.WriteSingleRegisterRequest;
 
+import de.riedeldev.sunplugged.beckhoff.klspi.AnalogInputKlemme;
 import de.riedeldev.sunplugged.beckhoff.klspi.AnalogOutputKlemme;
-import de.riedeldev.sunplugged.beckhoff.klspi.BitKlemme;
-import de.riedeldev.sunplugged.beckhoff.klspi.ByteKlemme;
+import de.riedeldev.sunplugged.beckhoff.klspi.DigitalInputKlemme;
+import de.riedeldev.sunplugged.beckhoff.klspi.DigitalOutputKlemme;
+import de.riedeldev.sunplugged.beckhoff.klspi.Klemme;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BK9000 {
 
-	private final List<BitKlemme> bitKlemmen;
-	private final List<ByteKlemme> byteKlemmen;
+	private final List<Klemme> klemmen;
+	private final List<DigitalInputKlemme> diKlemmen;
+	private final List<DigitalOutputKlemme> doKlemmen;
+	private final List<AnalogInputKlemme> aiKlemmen;
+	private final List<AnalogOutputKlemme> aoKlemmen;
 
-	private BK9000(List<BitKlemme> bitKlemmen, List<ByteKlemme> byteKlemmen) {
-		this.bitKlemmen = bitKlemmen;
-		this.byteKlemmen = byteKlemmen;
+	private ModbusTcpMaster master;
+
+	private BK9000(List<Klemme> klemmen) {
+		this.klemmen = klemmen;
+
+		List<Klemme> duplicateClamps = this.klemmen.stream()
+				.collect(Collectors.groupingBy(klemme -> klemme.getId()))
+				.values().stream().filter(list -> list.size() > 1).findAny()
+				.orElse(null);
+		if (duplicateClamps != null) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("There were clamps with same ids: ");
+			duplicateClamps
+					.forEach(clamp -> builder.append(clamp.getId() + "; "));
+			throw new IllegalArgumentException(builder.toString());
+		}
+
+		this.diKlemmen = klemmen.stream()
+				.filter(klemme -> klemme instanceof DigitalInputKlemme)
+				.map(k -> (DigitalInputKlemme) k).collect(Collectors.toList());
+		this.doKlemmen = klemmen.stream()
+				.filter(k -> k instanceof DigitalOutputKlemme)
+				.map(k -> (DigitalOutputKlemme) k).collect(Collectors.toList());
+
+		this.aiKlemmen = klemmen.stream()
+				.filter(klemme -> klemme instanceof AnalogInputKlemme)
+				.map(klemme -> (AnalogInputKlemme) klemme)
+				.collect(Collectors.toList());
+		this.aoKlemmen = klemmen.stream()
+				.filter(klemme -> klemme instanceof AnalogOutputKlemme)
+				.map(klemme -> (AnalogOutputKlemme) klemme)
+				.collect(Collectors.toList());
+
 	}
 
 	public void connect(String host, int port) {
 		ModbusTcpMasterConfig config = new ModbusTcpMasterConfig.Builder(host)
 				.setPort(port).build();
 		ModbusTcpMaster master = new ModbusTcpMaster(config);
+		klemmen.forEach(k -> k.setTcpMaster(master));
 
-		int readAddressOffset = 0;
-		int writeAddressOffset = 0;
+		int digitalInputOffset = 0;
+		for (DigitalInputKlemme k : diKlemmen) {
+			k.setInputOffset(digitalInputOffset);
+			digitalInputOffset += k.addressSpaceInput();
+		}
+		for (DigitalOutputKlemme k : doKlemmen) {
+			k.setInputOffset(digitalInputOffset);
+			digitalInputOffset += k.addressSpaceInput();
+		}
 
-		for (BitKlemme klemme : bitKlemmen) {
-			klemme.attach(readAddressOffset, writeAddressOffset, master);
-			readAddressOffset += klemme.bitsNeededInRead();
-			writeAddressOffset += klemme.bitsNeededInWrite();
+		int digitalOutputOffset = 0;
+		for (DigitalOutputKlemme k : doKlemmen) {
+			k.setOutputOffset(digitalOutputOffset);
+			digitalOutputOffset += k.addressSpaceOutput();
 		}
-		readAddressOffset = 0;
-		writeAddressOffset = 0;
-		for (ByteKlemme klemme : byteKlemmen) {
-			klemme.attach(readAddressOffset, writeAddressOffset, master);
-			readAddressOffset += klemme.addressesNeededInRead();
-			writeAddressOffset += klemme.addressesNeededInWrite();
+
+		int analogInputSpaceOffset = 0;
+		int analogOutputSpaceOffset = 0;
+		for (AnalogInputKlemme k : aiKlemmen) {
+			k.setInputOffset(analogInputSpaceOffset);
+			k.setOutputOffset(analogOutputSpaceOffset);
+			analogInputSpaceOffset += k.addressSpaceInput();
+			analogOutputSpaceOffset += k.addressSpaceOutput();
 		}
+
+		for (AnalogOutputKlemme k : aoKlemmen) {
+			k.setOutputOffset(analogOutputSpaceOffset);
+			k.setInputOffset(analogInputSpaceOffset);
+			analogOutputSpaceOffset += k.addressSpaceOutput();
+			analogInputSpaceOffset += k.addressSpaceInput();
+		}
+		master.connect();
+		this.master = master;
+	}
+
+	public CompletableFuture<Void> setDigitalOutput(int number, boolean value) {
+		for (DigitalOutputKlemme k : doKlemmen) {
+			if (k.addressSpaceOutput() < number) {
+				number = number - k.addressSpaceOutput();
+			} else {
+				return k.set(number, value);
+			}
+		}
+		throw new IllegalArgumentException(
+				"No Output with number " + number + " attached...");
+	}
+
+	public CompletableFuture<Boolean> readDigitalOutput(int number) {
+		for (DigitalOutputKlemme k : doKlemmen) {
+			if (k.addressSpaceOutput() < number) {
+				number = number - k.addressSpaceOutput();
+			} else {
+				return k.read(number);
+			}
+		}
+		throw new IllegalArgumentException(
+				"No Output with number " + number + " attached...");
+	}
+
+	public CompletableFuture<Boolean> readDigitalInput(int number) {
+		for (DigitalInputKlemme k : diKlemmen) {
+			if (k.addressSpaceInput() < number) {
+				number = number - k.addressSpaceInput();
+			} else {
+				return k.read(number);
+			}
+		}
+		throw new IllegalArgumentException(
+				"No Input with number " + number + " attached...");
 	}
 
 	public CompletableFuture<Void> writeAnalogOutput(int number, double value) {
-		List<AnalogOutputKlemme> outputKlemmen = byteKlemmen.stream()
-				.filter(klemme -> klemme instanceof AnalogOutputKlemme)
-				.map(klemme -> (AnalogOutputKlemme) klemme)
-				.collect(Collectors.toList());
 
-		for (AnalogOutputKlemme klemme : outputKlemmen) {
+		for (AnalogOutputKlemme klemme : aoKlemmen) {
 			if (klemme.outputs() < number) {
 				number = number - klemme.outputs();
 			} else {
-				return klemme.setOutput(number, value);
+				return klemme.set(number, value);
 			}
 		}
 		throw new IllegalArgumentException(
@@ -62,39 +152,57 @@ public class BK9000 {
 	}
 
 	public CompletableFuture<Double> readAnalogOutput(int number) {
-		List<AnalogOutputKlemme> outputKlemmen = byteKlemmen.stream()
-				.filter(klemme -> klemme instanceof AnalogOutputKlemme)
-				.map(klemme -> (AnalogOutputKlemme) klemme)
-				.collect(Collectors.toList());
 
-		for (AnalogOutputKlemme klemme : outputKlemmen) {
+		for (AnalogOutputKlemme klemme : aoKlemmen) {
 			if (klemme.outputs() < number) {
 				number = number - klemme.outputs();
 			} else {
-				return klemme.readOutput(number);
+				return klemme.read(number);
 			}
 		}
 		throw new IllegalArgumentException(
 				"No output with number " + number + " attached...");
 	}
 
-	public static class BK9000Builder {
+	public CompletableFuture<Double> readAnalogInput(int number) {
+		for (AnalogInputKlemme k : aiKlemmen) {
+			if (k.inputs() < number) {
+				number = number - k.inputs();
+			} else {
+				return k.read(number);
+			}
+		}
+		throw new IllegalArgumentException(
+				"No input with number " + number + " attached...");
+	}
 
-		List<BitKlemme> bitKlemmen = new ArrayList<>();
-		List<ByteKlemme> byteKlemmen = new ArrayList<>();
-
-		public BK9000Builder with(BitKlemme klemme) {
-			this.bitKlemmen.add(klemme);
-			return this;
+	public void resetWatchDog() {
+		if (master != null) {
+			try {
+				master.sendRequest(
+						new WriteSingleRegisterRequest(0x1121, 0xBECF), 1)
+						.get();
+				master.sendRequest(
+						new WriteSingleRegisterRequest(0x1121, 0xAFFE), 0)
+						.get();
+			} catch (InterruptedException | ExecutionException e) {
+				log.error("Failed to reset Watchdog!", e);
+			}
 		}
 
-		public BK9000Builder with(ByteKlemme klemme) {
-			this.byteKlemmen.add(klemme);
+	}
+
+	public static class BK9000Builder {
+
+		List<Klemme> klemmen = new ArrayList<>();
+
+		public BK9000Builder with(Klemme klemme) {
+			this.klemmen.add(klemme);
 			return this;
 		}
 
 		public BK9000 build() {
-			return new BK9000(bitKlemmen, byteKlemmen);
+			return new BK9000(klemmen);
 		}
 	}
 

@@ -1,14 +1,13 @@
 package de.riedeldev.sunplugged.heater.mainheater;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import de.riedeldev.sunplugged.heater.config.Parameters;
 import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.Addresses;
 import de.riedeldev.sunplugged.heater.io.IOService;
 
-@Service
+//@Service
 public class MainHeaterThree extends AbstractMainHeater {
 
 	@Autowired

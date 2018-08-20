@@ -8,10 +8,10 @@ public interface IOService {
 
 	public boolean getDI(int address) throws IOServiceException;
 
-	public void setAO(int address, int value) throws IOServiceException;
+	public void setAO(int address, double value) throws IOServiceException;
 
-	public int getAO(int address) throws IOServiceException;
+	public double getAO(int address) throws IOServiceException;
 
-	public int getAI(int address) throws IOServiceException;
+	public double getAI(int address) throws IOServiceException;
 
 }

@@ -16,7 +16,7 @@ public class Conversions {
 	private static double typeKM = (1370.0 - 100.0) / bit16;
 	private static double typeKC = -100;
 
-	public static double typeKConversion(int value) {
+	public static double typeKConversion(double value) {
 		return typeKM * value - typeKC - 273.13;
 
 	}
@@ -33,7 +33,7 @@ public class Conversions {
 		return (int) ((bit16) * voltage / 10.0);
 	}
 
-	public static double unsingedIntToUnsingedVoltage(int value) {
+	public static double unsingedIntToUnsingedVoltage(double value) {
 		if (value < 0) {
 			log.warn("Integer < 0 in !unsinged! conversion, will return 0.0");
 			return 0.0;
