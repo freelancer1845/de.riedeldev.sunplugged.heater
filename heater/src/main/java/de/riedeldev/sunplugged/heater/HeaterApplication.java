@@ -19,6 +19,7 @@ import de.riedeldev.sunplugged.beckhoff.kl1xxx.KL1104;
 import de.riedeldev.sunplugged.beckhoff.kl2xxx.KL2114;
 import de.riedeldev.sunplugged.beckhoff.kl3xxx.KL3064;
 import de.riedeldev.sunplugged.beckhoff.kl4xxx.KL4004;
+import de.riedeldev.sunplugged.beckhoff.klspi.Configurator;
 
 @SpringBootApplication
 @EnableScheduling
@@ -48,11 +49,21 @@ public class HeaterApplication extends SpringBootServletInitializer {
 
 	@Bean
 	BK9000 BK9000() {
+		KL4004 kl4004 = new KL4004("7");
+
 		BK9000 bk = new BK9000Builder().with(new KL1104("1"))
 				.with(new KL1104("2")).with(new KL1104("3"))
 				.with(new KL2114("4")).with(new KL2114("5"))
-				.with(new KL3064("6")).with(new KL4004("7")).build();
+				.with(new KL3064("6")).with(kl4004).build();
 		bk.connect("localhost", 502);
+
+		for (int i = 0; i < kl4004.outputs(); i++) {
+			Configurator configurator = kl4004.getConfigurator(i);
+
+			configurator.deactivateReadOnly();
+			// do configuration here
+			configurator.switchOffRegisterCommunication();
+		}
 		return bk;
 	}
 }

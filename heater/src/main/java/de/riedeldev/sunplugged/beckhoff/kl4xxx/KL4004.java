@@ -15,9 +15,6 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 	private static final int ADDRESS_SPACE_SIZE = 8;
 	private static final int OUTPUTS = 4;
 
-	private Configurator configurator = new Configurator(master,
-			writeAddressOffset);
-
 	private Double[] maxValueForOutput = {10.0, 10.0, 10.0, 10.0};
 
 	public KL4004(String id) {
@@ -25,45 +22,52 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 
 	}
 
-	@Override
-	public void setOutputOffset(int offset) {
-		super.setOutputOffset(offset);
-		this.configurator = new Configurator(master, offset);
-	}
-
-	public void setUserScaling(boolean on) {
-		if (on) {
-			activateUserScaling();
-		} else {
-			deactivateUserScaling();
+	public Configurator getConfigurator(int output) {
+		if (master == null) {
+			throw new IllegalStateException("Not attached! TcpMaster was null");
 		}
+		return new Configurator(master, writeAddressOffset + (2 * output));
 	}
 
-	public void setUserSwitchOnValue(boolean on) {
-		if (on) {
-			activateUserSwitchOnValue();
-		} else {
-			deactivateUserSwitchOnValue();
-		}
-	}
-
-	public void setUserGain(int gain) {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.writeValueToConfigRegister(34, gain);
-		});
-	}
-
-	public void setUserOffset(int offset) {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.writeValueToConfigRegister(33, offset);
-		});
-	}
-
-	public void setUserSwitchOnValue(int value) {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.writeValueToConfigRegister(35, value);
-		});
-	}
+	// @Override
+	// public void setOutputOffset(int offset) {
+	// super.setOutputOffset(offset);
+	// this.configurator = new Configurator(master, offset);
+	// }
+	//
+	// public void setUserScaling(boolean on) {
+	// if (on) {
+	// activateUserScaling();
+	// } else {
+	// deactivateUserScaling();
+	// }
+	// }
+	//
+	// public void setUserSwitchOnValue(boolean on) {
+	// if (on) {
+	// activateUserSwitchOnValue();
+	// } else {
+	// deactivateUserSwitchOnValue();
+	// }
+	// }
+	//
+	// public void setUserGain(int gain) {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.writeValueToConfigRegister(34, gain);
+	// });
+	// }
+	//
+	// public void setUserOffset(int offset) {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.writeValueToConfigRegister(33, offset);
+	// });
+	// }
+	//
+	// public void setUserSwitchOnValue(int value) {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.writeValueToConfigRegister(35, value);
+	// });
+	// }
 
 	@Override
 	public CompletableFuture<Double> read(int number) {
@@ -99,47 +103,47 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 				* maxValueForOutput[number]);
 	}
 
-	private void activateUserScaling() {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.readValuteFromConfigRegister(32);
-		}).thenCompose(value -> {
-
-			return configurator.writeValueToConfigRegister(32, (value | 1));
-
-		});
-	}
-
-	private void deactivateUserScaling() {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.readValuteFromConfigRegister(32);
-		}).thenCompose(value -> {
-
-			return configurator.writeValueToConfigRegister(32, (value & ~1));
-
-		});
-	}
-
-	private void activateUserSwitchOnValue() {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.readValuteFromConfigRegister(32);
-		}).thenCompose(value -> {
-
-			return configurator.writeValueToConfigRegister(32,
-					(value | (1 << 8)));
-
-		});
-	}
-
-	private void deactivateUserSwitchOnValue() {
-		configurator.deactivateReadOnly().thenCompose((voidValue) -> {
-			return configurator.readValuteFromConfigRegister(32);
-		}).thenCompose(value -> {
-
-			return configurator.writeValueToConfigRegister(32,
-					(value & ~(1 << 8)));
-
-		});
-	}
+	// private void activateUserScaling() {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.readValuteFromConfigRegister(32);
+	// }).thenCompose(value -> {
+	//
+	// return configurator.writeValueToConfigRegister(32, (value | 1));
+	//
+	// });
+	// }
+	//
+	// private void deactivateUserScaling() {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.readValuteFromConfigRegister(32);
+	// }).thenCompose(value -> {
+	//
+	// return configurator.writeValueToConfigRegister(32, (value & ~1));
+	//
+	// });
+	// }
+	//
+	// private void activateUserSwitchOnValue() {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.readValuteFromConfigRegister(32);
+	// }).thenCompose(value -> {
+	//
+	// return configurator.writeValueToConfigRegister(32,
+	// (value | (1 << 8)));
+	//
+	// });
+	// }
+	//
+	// private void deactivateUserSwitchOnValue() {
+	// configurator.deactivateReadOnly().thenCompose((voidValue) -> {
+	// return configurator.readValuteFromConfigRegister(32);
+	// }).thenCompose(value -> {
+	//
+	// return configurator.writeValueToConfigRegister(32,
+	// (value & ~(1 << 8)));
+	//
+	// });
+	// }
 
 	@Override
 	public int outputs() {
