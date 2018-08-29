@@ -23,5 +23,10 @@
     "name": "bk9000.configure",
     "type": "java.lang.Boolean",
     "description": "If true, the b9000 clamps recieve a standard configuration"
+  },
+  {
+    "name": "bk9000.ip",
+    "type": "java.lang.String",
+    "description": "IP of the controller. Port is 502 by default"
   }
 ]}

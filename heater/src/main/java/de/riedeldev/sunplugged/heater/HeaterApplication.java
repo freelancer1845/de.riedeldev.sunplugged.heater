@@ -35,6 +35,9 @@ public class HeaterApplication extends SpringBootServletInitializer {
 	@Value("${bk9000.configure:false}")
 	private boolean configureBK9000;
 
+	@Value("${bk9000.ip:localhost}")
+	private String bk9000Ip;;
+
 	public static void main(String[] args) {
 		SpringApplication.run(HeaterApplication.class, args);
 	}
@@ -68,7 +71,7 @@ public class HeaterApplication extends SpringBootServletInitializer {
 				.with(new KL2114("4")).with(new KL2114("5"))
 				.with(new KL3064("6")).with(kl4004).with(kl33121).with(kl33122)
 				.build();
-		bk.connect("localhost", 502);
+		bk.connect(bk9000Ip, 502);
 		if (configureBK9000) {
 
 			for (int i = 0; i < kl4004.outputs(); i++) {
