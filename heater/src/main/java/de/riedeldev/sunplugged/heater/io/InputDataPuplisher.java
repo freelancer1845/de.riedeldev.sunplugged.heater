@@ -15,7 +15,7 @@ import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 public class InputDataPuplisher {
 	private static final int MAX_DIGITAL_INPUTS = 12;
 
-	private static final int MAX_ANALOG_INPUTS = 4;
+	private static final int MAX_ANALOG_INPUTS = 8;
 
 	private boolean[] previousDI = new boolean[MAX_DIGITAL_INPUTS];
 	private double[] previousAI = new double[MAX_ANALOG_INPUTS];

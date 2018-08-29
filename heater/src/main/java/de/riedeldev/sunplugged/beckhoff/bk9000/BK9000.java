@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BK9000 {
 
+	private static final int ANALOG_OUTPUT_OFFSET = 0x0800;
+
 	private final List<Klemme> klemmen;
 	private final List<DigitalInputKlemme> diKlemmen;
 	private final List<DigitalOutputKlemme> doKlemmen;
@@ -84,7 +86,7 @@ public class BK9000 {
 		}
 
 		int analogInputSpaceOffset = 0;
-		int analogOutputSpaceOffset = 0;
+		int analogOutputSpaceOffset = ANALOG_OUTPUT_OFFSET;
 		for (AnalogInputKlemme k : aiKlemmen) {
 			k.setInputOffset(analogInputSpaceOffset);
 			k.setOutputOffset(analogOutputSpaceOffset);
@@ -153,11 +155,15 @@ public class BK9000 {
 
 	public CompletableFuture<Double> readAnalogOutput(int number) {
 
-		for (AnalogOutputKlemme klemme : aoKlemmen) {
-			if (klemme.outputs() < number) {
-				number = number - klemme.outputs();
+		for (AnalogInputKlemme klemme : aiKlemmen) {
+			if ((klemme instanceof AnalogOutputKlemme) == false) {
+				continue;
+			}
+			AnalogOutputKlemme oKlemme = (AnalogOutputKlemme) klemme;
+			if (oKlemme.outputs() <= number) {
+				number = number - oKlemme.outputs();
 			} else {
-				return klemme.read(number);
+				return oKlemme.read(number);
 			}
 		}
 		throw new IllegalArgumentException(
@@ -166,7 +172,10 @@ public class BK9000 {
 
 	public CompletableFuture<Double> readAnalogInput(int number) {
 		for (AnalogInputKlemme k : aiKlemmen) {
-			if (k.inputs() < number) {
+			if (k instanceof AnalogOutputKlemme) {
+				continue;
+			}
+			if (k.inputs() <= number) {
 				number = number - k.inputs();
 			} else {
 				return k.read(number);

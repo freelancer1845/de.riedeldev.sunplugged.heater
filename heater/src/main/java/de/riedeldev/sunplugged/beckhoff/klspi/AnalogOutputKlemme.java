@@ -17,7 +17,7 @@ public interface AnalogOutputKlemme extends AnalogInputKlemme {
 	int outputs();
 
 	default int inputs() {
-		throw new UnsupportedOperationException();
+		return outputs();
 	};
 
 }

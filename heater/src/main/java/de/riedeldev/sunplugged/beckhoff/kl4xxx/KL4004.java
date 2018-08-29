@@ -26,7 +26,8 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 		if (master == null) {
 			throw new IllegalStateException("Not attached! TcpMaster was null");
 		}
-		return new Configurator(master, writeAddressOffset + (2 * output));
+		return new Configurator(master, readAddressOffset + (2 * output),
+				writeAddressOffset + (2 * output));
 	}
 
 	// @Override
@@ -72,8 +73,8 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 	@Override
 	public CompletableFuture<Double> read(int number) {
 		return master
-				.sendRequest(
-						new ReadInputRegistersRequest(readAddressOffset, 1), 0)
+				.sendRequest(new ReadInputRegistersRequest(
+						readAddressOffset + 1 + 2 * number, 1), 0)
 				.thenApply(res -> {
 					ReadInputRegistersResponse response = (ReadInputRegistersResponse) res;
 
