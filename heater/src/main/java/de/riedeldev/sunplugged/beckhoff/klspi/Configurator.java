@@ -65,7 +65,7 @@ public class Configurator {
 
 		return master.sendRequest(
 				new WriteMultipleRegistersRequest(controlRegister, 2, values),
-				0).handle((res, ex) -> {
+				1).handle((res, ex) -> {
 					if (ex != null) {
 						synchronized (this) {
 							isused = false;
@@ -90,7 +90,7 @@ public class Configurator {
 						return;
 					}
 					master.sendRequest(
-							new ReadInputRegistersRequest(statusRegister, 1), 0)
+							new ReadInputRegistersRequest(statusRegister, 1), 1)
 							.handleAsync((res2, ex) -> {
 								synchronized (this) {
 									isused = false;
@@ -163,7 +163,7 @@ public class Configurator {
 		}
 
 		return master.sendRequest(
-				new WriteSingleRegisterRequest(controlRegister, controlByte), 0)
+				new WriteSingleRegisterRequest(controlRegister, controlByte), 1)
 				.thenCompose(res -> {
 
 					try {
@@ -200,7 +200,7 @@ public class Configurator {
 
 	public void switchOffRegisterCommunication() {
 		master.sendRequest(new WriteSingleRegisterRequest(controlRegister, 0),
-				0);
+				1);
 	}
 
 }

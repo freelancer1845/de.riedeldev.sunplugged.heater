@@ -74,7 +74,7 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 	public CompletableFuture<Double> read(int number) {
 		return master
 				.sendRequest(new ReadInputRegistersRequest(
-						readAddressOffset + 1 + 2 * number, 1), 0)
+						readAddressOffset + 1 + 2 * number, 1), 1)
 				.thenApply(res -> {
 					ReadInputRegistersResponse response = (ReadInputRegistersResponse) res;
 
@@ -90,7 +90,7 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 						new WriteSingleRegisterRequest(
 								writeAddressOffset + (number * 2) + 1,
 								convertVoltageToRegisterValue(number, value)),
-						0)
+						1)
 				.thenAccept(res -> {
 				});
 	}

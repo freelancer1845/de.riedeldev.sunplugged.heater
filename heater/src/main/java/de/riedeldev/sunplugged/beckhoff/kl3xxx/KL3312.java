@@ -30,7 +30,7 @@ public class KL3312 extends AbstractClamp implements AnalogInputKlemme {
 	public CompletableFuture<Double> read(int number) {
 		return master
 				.sendRequest(new ReadInputRegistersRequest(
-						readAddressOffset + 2 * number + 1, 1), 0)
+						readAddressOffset + 2 * number + 1, 1), 1)
 				.thenApply(res -> {
 					ReadInputRegistersResponse response = (ReadInputRegistersResponse) res;
 					int value = response.getRegisters().getShort(0);

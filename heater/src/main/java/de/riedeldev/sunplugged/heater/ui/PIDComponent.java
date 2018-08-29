@@ -8,7 +8,6 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventScope;
 import org.vaadin.spring.events.annotation.EventBusListenerMethod;
 
-import com.byteowls.vaadin.chartjs.ChartJs;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.spring.annotation.SpringComponent;
@@ -46,7 +45,7 @@ public class PIDComponent extends VerticalLayout {
 
 	private Heater heater;
 
-	private ChartJs chart;
+//	private ChartJs chart;
 
 	@Autowired
 	private UI ui;

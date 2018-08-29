@@ -18,7 +18,7 @@ public class KL1104 extends AbstractClamp implements DigitalInputKlemme {
 	public CompletableFuture<Boolean> read(int number) {
 
 		return master.sendRequest(
-				new ReadDiscreteInputsRequest(readAddressOffset + number, 1), 0)
+				new ReadDiscreteInputsRequest(readAddressOffset + number, 1), 1)
 				.thenApply(res -> {
 					ReadDiscreteInputsResponse response = (ReadDiscreteInputsResponse) res;
 					byte status = response.getInputStatus().readByte();

@@ -20,7 +20,7 @@ public class KL2114 extends AbstractClamp implements DigitalOutputKlemme {
 
 		return master
 				.sendRequest(
-						new ReadCoilsRequest(number + writeAddressOffset, 1), 0)
+						new ReadCoilsRequest(number + writeAddressOffset, 1), 1)
 				.thenApply(res -> {
 					ReadCoilsResponse response = (ReadCoilsResponse) res;
 					byte status = response.getCoilStatus().readByte();
@@ -33,7 +33,7 @@ public class KL2114 extends AbstractClamp implements DigitalOutputKlemme {
 	public CompletableFuture<Void> set(int number, boolean value) {
 		return master
 				.sendRequest(new WriteSingleCoilRequest(
-						number + writeAddressOffset, value), 0)
+						number + writeAddressOffset, value), 1)
 				.thenAccept((res) -> {
 				});
 
