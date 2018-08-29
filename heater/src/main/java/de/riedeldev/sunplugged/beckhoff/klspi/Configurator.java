@@ -1,8 +1,6 @@
 package de.riedeldev.sunplugged.beckhoff.klspi;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
 import com.digitalpetri.modbus.requests.ReadHoldingRegistersRequest;
@@ -25,7 +23,7 @@ public class Configurator {
 	private int statusRegister;
 	private int controlRegister;
 
-	private Lock lock = new ReentrantLock();
+	private boolean isused = false;
 
 	public Configurator(ModbusTcpMaster master, int statusRegister,
 			int controlRegister) {
@@ -45,7 +43,20 @@ public class Configurator {
 	public CompletableFuture<Void> writeValueToConfigRegister(int register,
 			int value) {
 
-		lock.lock();
+		if (isused == true) {
+			synchronized (this) {
+				try {
+					this.wait(2000);
+				} catch (InterruptedException e) {
+				}
+				if (isused == true) {
+					throw new IllegalStateException(
+							"Thread woken but configurator is still in use!");
+				}
+				isused = true;
+			}
+
+		}
 
 		ByteBuf values = Unpooled.buffer();
 		int controlByte = (register | 0b11000000);
@@ -56,7 +67,10 @@ public class Configurator {
 				new WriteMultipleRegistersRequest(controlRegister, 2, values),
 				0).handle((res, ex) -> {
 					if (ex != null) {
-						lock.unlock();
+						synchronized (this) {
+							isused = false;
+							this.notify();
+						}
 						log.error(
 								"Failed to write register in configurator. Address: "
 										+ controlRegister + " Value: " + value);
@@ -71,13 +85,17 @@ public class Configurator {
 						Thread.sleep(CONTROLLER_WAIT_TIME);
 					} catch (InterruptedException e) {
 						log.error("Configuration has been interrupted.", e);
-						lock.unlock();
+						isused = false;
+						this.notify();
 						return;
 					}
 					master.sendRequest(
 							new ReadInputRegistersRequest(statusRegister, 1), 0)
 							.handleAsync((res2, ex) -> {
-								lock.unlock();
+								synchronized (this) {
+									isused = false;
+									this.notify();
+								}
 								if (ex != null) {
 									log.error(
 											"Failed to read status Register after write.");
@@ -130,7 +148,19 @@ public class Configurator {
 		int controlByte = (register | 0b10000000);
 		values.writeShort(controlByte);
 
-		lock.lock();
+		if (isused == true) {
+			synchronized (this) {
+				try {
+					this.wait(2000);
+				} catch (InterruptedException e) {
+				}
+				if (isused == true) {
+					throw new IllegalStateException(
+							"Thread woken but configurator is still in use!");
+				}
+				isused = true;
+			}
+		}
 
 		return master.sendRequest(
 				new WriteSingleRegisterRequest(controlRegister, controlByte), 0)
@@ -140,7 +170,8 @@ public class Configurator {
 						Thread.sleep(CONTROLLER_WAIT_TIME);
 					} catch (InterruptedException e) {
 						log.error("Interrupted while waiting for controller.");
-						lock.unlock();
+						isused = false;
+						this.notify();
 						throw new IllegalStateException(
 								"Interrupted while waiting for bus answer.");
 					}
@@ -149,7 +180,12 @@ public class Configurator {
 							.sendRequest(new ReadHoldingRegistersRequest(
 									controlRegister + 1, 1), 0)
 							.handle((res2, ex) -> {
-								lock.unlock();
+
+								synchronized (this) {
+									isused = false;
+									this.notify();
+								}
+
 								if (ex != null) {
 									log.error(
 											"Error reading back the register value.");

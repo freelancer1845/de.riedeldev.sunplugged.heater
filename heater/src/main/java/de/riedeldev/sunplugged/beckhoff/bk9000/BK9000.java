@@ -201,6 +201,12 @@ public class BK9000 {
 
 	}
 
+	public Klemme getClamp(String id) {
+		return klemmen.stream().filter(a -> a.getId().equals(id)).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException(
+						"Clamp with that not present"));
+	}
+
 	public static class BK9000Builder {
 
 		List<Klemme> klemmen = new ArrayList<>();

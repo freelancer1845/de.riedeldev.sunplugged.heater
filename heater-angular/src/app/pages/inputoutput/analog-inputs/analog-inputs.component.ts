@@ -12,7 +12,7 @@ export class AnalogInputsComponent implements OnInit {
   fields:IOField[] = [];
 
   constructor() {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       this.fields.push({name: "AI " + i, value: false, topic: 'ai/' + i,isAnalog: true, readOnly: true});
     }
    }

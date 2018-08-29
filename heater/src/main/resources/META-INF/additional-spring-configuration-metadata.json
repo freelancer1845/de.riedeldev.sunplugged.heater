@@ -18,5 +18,10 @@
     "name": "pid.logging.folder",
     "type": "java.lang.String",
     "description": "Folder that the logfiles will appear in"
+  },
+  {
+    "name": "bk9000.configure",
+    "type": "java.lang.Boolean",
+    "description": "If true, the b9000 clamps recieve a standard configuration"
   }
 ]}
