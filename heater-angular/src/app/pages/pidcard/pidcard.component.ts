@@ -6,6 +6,7 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PidvaluesdialogComponent } from './pidvaluesdialog/pidvaluesdialog.component';
 
+
 @Component({
   selector: 'ngx-pidcard',
   templateUrl: './pidcard.component.html',
@@ -28,7 +29,8 @@ export class PidcardComponent implements OnInit, OnDestroy, AfterViewInit {
   subscription: Subscription;
 
   showPidDialog() {
-    this.modalService.open(this.refVar, { size: 'sm', container: 'nb-layout' });
+    const modelRef = this.modalService.open(PidvaluesdialogComponent, {size: 'sm', container: 'nb-layout'});
+    modelRef.componentInstance.heaterStatus = this.status;
   }
 
   @ViewChild("refVar") refVar: TemplateRef<PidvaluesdialogComponent>;
@@ -172,6 +174,7 @@ export class PidcardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private handleNewHeaterStatus(newStatus: HeaterStatus) {
     this.status = newStatus;
+
     // this.currentTempData.push([newStatus.timestamp, newStatus.currentTemperature]);
     // this.targetTempData.push([newStatus.timestamp, newStatus.targetTemperature]);
     // this.powerData.push([newStatus.timestamp, newStatus.power]);

@@ -49,7 +49,6 @@ const components = [
     NgxPopoverCardComponent,
     NgxPopoverFormComponent,
     NgxPopoverTabsComponent,
-    PidvaluesdialogComponent
   ],
 })
 export class UiFeaturesModule { }

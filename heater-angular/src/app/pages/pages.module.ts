@@ -40,6 +40,9 @@ const PAGES_COMPONENTS = [
     HeateroverviewComponent,
     PidvaluesdialogComponent,
   ],
+  entryComponents: [
+    PidvaluesdialogComponent,
+  ]
 })
 export class PagesModule {
 }
