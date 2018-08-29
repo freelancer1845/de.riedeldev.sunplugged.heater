@@ -10,8 +10,17 @@
       <ngx-analogtext [name]="'Target Temperature'" [isReadOnly]="false" (setvalue)="onSet({'targetTemperature': $event})" [placeholder]="status.targetTemperature">{{status.targetTemperature}}</ngx-analogtext>
       <ngx-analogtext [name]="'Current Temperature'" [isReadOnly]="true" [placeholder]="status.currentTemperature">{{status.currentTemperature}}</ngx-analogtext>
       <ngx-analogtext [name]="'Current Power'" [isReadOnly]="true" [placeholder]="status.power">{{status.power}}</ngx-analogtext>
+      <button class="btn btn-primary" (click)="showPidDialog()">PID Settings</button>
     </div>
   </nb-card-body>
 
 
 </nb-card>
+
+
+<template #refVar>
+  <p>
+    TEst
+  </p>
+  <ngx-pidvaluesdialog [heaterStatus]="status">{{title}}</ngx-pidvaluesdialog>
+</template>

@@ -14,6 +14,7 @@ import { IocardComponent } from './inputoutput/iocard/iocard.component';
 import { PidcardComponent } from './pidcard/pidcard.component';
 import { HeateroverviewComponent } from './heateroverview/heateroverview.component';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { PidvaluesdialogComponent } from './pidcard/pidvaluesdialog/pidvaluesdialog.component';
 
 const PAGES_COMPONENTS = [
   PagesComponent,
@@ -37,6 +38,7 @@ const PAGES_COMPONENTS = [
     IocardComponent,
     PidcardComponent,
     HeateroverviewComponent,
+    PidvaluesdialogComponent,
   ],
 })
 export class PagesModule {

@@ -1,8 +1,10 @@
-import { Component, OnInit, Input, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, AfterViewInit, TemplateRef, ContentChild, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { HeaterService, HeaterTopics, HeaterStatus } from '../../@core/data/heater.service';
 import { NbThemeService } from '@nebular/theme';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { PidvaluesdialogComponent } from './pidvaluesdialog/pidvaluesdialog.component';
 
 @Component({
   selector: 'ngx-pidcard',
@@ -19,12 +21,17 @@ export class PidcardComponent implements OnInit, OnDestroy, AfterViewInit {
   targetTempData = [];
   powerData = [];
 
-  constructor(private heaterService: HeaterService, private theme: NbThemeService) {
+  constructor(private heaterService: HeaterService, private theme: NbThemeService, private modalService: NgbModal) {
   }
 
   status: HeaterStatus = new HeaterStatus();
   subscription: Subscription;
 
+  showPidDialog() {
+    this.modalService.open(this.refVar, { size: 'sm', container: 'nb-layout' });
+  }
+
+  @ViewChild("refVar") refVar: TemplateRef<PidvaluesdialogComponent>;
 
 
   ngOnInit() {

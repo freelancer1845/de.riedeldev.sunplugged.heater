@@ -16,6 +16,7 @@ import {
   NgxPopoverCardComponent, NgxPopoverFormComponent,
   NgxPopoverTabsComponent,
 } from './popovers/popover-examples.component';
+import { PidvaluesdialogComponent } from '../pidcard/pidvaluesdialog/pidvaluesdialog.component';
 
 const components = [
   UiFeaturesComponent,
@@ -48,6 +49,7 @@ const components = [
     NgxPopoverCardComponent,
     NgxPopoverFormComponent,
     NgxPopoverTabsComponent,
+    PidvaluesdialogComponent
   ],
 })
 export class UiFeaturesModule { }
