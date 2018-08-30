@@ -56,8 +56,8 @@ public class StatusView extends VerticalLayout implements View {
 	private List<Consumer<MachineStatusSnapshot>> labels = new LinkedList<>();
 
 	@Autowired
-	public StatusView(MachineStatus machineStatus, PreHeaterOne preHeaterOne,
-			PreHeaterTwo preHeaterTwo) {
+	public StatusView(MachineStatus machineStatus, PreHeaterOne preHeaterOne
+) {
 
 		HorizontalLayout digitalGroup = new HorizontalLayout();
 		digitalGroup.setCaption("<h2>Digital I/O</h2>");
@@ -154,10 +154,10 @@ public class StatusView extends VerticalLayout implements View {
 				"Heater Fan One",
 				s -> String.format("%.2f %%", s.getHeaterFanOnePower() * 100),
 				(s, v) -> s.setHeaterFanOnePower(v), machineStatus));
-		analogOutputs.addComponent(new ChangeableStatusTextField(
-				"Pre Heater Two",
-				s -> String.format("%.2f %%", preHeaterTwo.getPower() * 100),
-				(s, v) -> preHeaterTwo.forcePower(v), machineStatus));
+//		analogOutputs.addComponent(new ChangeableStatusTextField(
+//				"Pre Heater Two",
+//				s -> String.format("%.2f %%", preHeaterTwo.getPower() * 100),
+//				(s, v) -> preHeaterTwo.forcePower(v), machineStatus));
 		analogOutputs.addComponent(new ChangeableStatusTextField(
 				"Heater Fan Two",
 				s -> String.format("%.2f %%", s.getHeaterFanTwoPower() * 100),

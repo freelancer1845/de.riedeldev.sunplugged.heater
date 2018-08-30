@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BK9000 {
 
-	private static final int ANALOG_OUTPUT_OFFSET = 0x0800;
+	private static final int ANALOG_OUTPUT_OFFSET = 0x0800 ;
 
 	private final List<Klemme> klemmen;
 	private final List<DigitalInputKlemme> diKlemmen;
@@ -93,13 +93,13 @@ public class BK9000 {
 			analogInputSpaceOffset += k.addressSpaceInput();
 			analogOutputSpaceOffset += k.addressSpaceOutput();
 		}
-
-		for (AnalogOutputKlemme k : aoKlemmen) {
-			k.setOutputOffset(analogOutputSpaceOffset);
-			k.setInputOffset(analogInputSpaceOffset);
-			analogOutputSpaceOffset += k.addressSpaceOutput();
-			analogInputSpaceOffset += k.addressSpaceInput();
-		}
+//
+//		for (AnalogOutputKlemme k : aoKlemmen) {
+//			k.setOutputOffset(analogOutputSpaceOffset);
+//			k.setInputOffset(analogInputSpaceOffset);
+//			analogOutputSpaceOffset += k.addressSpaceOutput();
+//			analogInputSpaceOffset += k.addressSpaceInput();
+//		}
 		master.connect();
 		this.master = master;
 	}
@@ -192,7 +192,7 @@ public class BK9000 {
 						new WriteSingleRegisterRequest(0x1121, 0xBECF), 1)
 						.get();
 				master.sendRequest(
-						new WriteSingleRegisterRequest(0x1121, 0xAFFE), 0)
+						new WriteSingleRegisterRequest(0x1121, 0xAFFE), 1)
 						.get();
 			} catch (InterruptedException | ExecutionException e) {
 				log.error("Failed to reset Watchdog!", e);

@@ -30,7 +30,16 @@ export class PidcardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   showPidDialog() {
     const modelRef = this.modalService.open(PidvaluesdialogComponent, {size: 'sm', container: 'nb-layout'});
-    modelRef.componentInstance.heaterStatus = this.status;
+    var tempStatus = new HeaterStatus();
+    Object.assign(tempStatus, this.status);
+    modelRef.componentInstance.heaterStatus =tempStatus;
+
+    modelRef.result.then(status  => {
+  
+        this.onSet(status);
+    
+
+    }, r => {});
   }
 
   @ViewChild("refVar") refVar: TemplateRef<PidvaluesdialogComponent>;

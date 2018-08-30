@@ -74,7 +74,7 @@ public class HeaterApplication extends SpringBootServletInitializer {
 		bk.connect(bk9000Ip, 502);
 		if (configureBK9000) {
 
-			for (int i = 0; i < kl4004.outputs(); i++) {
+			for (int i = 3; i < kl4004.outputs(); i++) {
 				Configurator configurator = kl4004.getConfigurator(i);
 
 				configurator.deactivateReadOnly();
@@ -104,50 +104,51 @@ public class HeaterApplication extends SpringBootServletInitializer {
 							"Faield to configure one of the clamps! (KL4004)");
 					throw new IllegalStateException(
 							"Failed to configure one of the clamps!", e);
+				} finally {
+					configurator.writeValueToConfigRegister(32, 0b0000110);
+					configurator.activateReadOnly();
+					configurator.switchOffRegisterCommunication();
 				}
 
-				configurator.writeValueToConfigRegister(32, 0b0000110);
-				configurator.activateReadOnly();
-				configurator.switchOffRegisterCommunication();
 			}
 
-			Stream.of(kl33121, kl33122).forEach(k -> {
-				for (int i = 0; i < k.inputs(); i++) {
-					Configurator configurator = k.getConfigurator(i);
-					configurator.deactivateReadOnly();
-
-					int currentValue;
-					try {
-						currentValue = configurator
-								.readValuteFromConfigRegister(32).get();
-						int first8Bit = (byte) currentValue;
-						int second8Bit = (byte) (currentValue >> 8);
-
-						int first8BitToWrite = 0b00000110;
-						first8BitToWrite = first8BitToWrite
-								| (((first8Bit >> 7) & 1) << 7);
-						int second8BitToWrite = 0b01000000;
-						second8BitToWrite = second8BitToWrite
-								| (((second8Bit >> 1) & 1) << 1);
-						second8BitToWrite = second8BitToWrite
-								| (((second8Bit >> 3) & 1) << 3);
-
-						int userRegisterValue = first8BitToWrite
-								+ (second8BitToWrite << 8);
-
-						configurator.writeValueToConfigRegister(32,
-								userRegisterValue);
-						configurator.activateReadOnly();
-						configurator.switchOffRegisterCommunication();
-					} catch (InterruptedException | ExecutionException e) {
-						log.error(
-								"Faield to configure one of the clamps! (KL3312)");
-						throw new IllegalStateException(
-								"Failed to configure one of the clamps!", e);
-					}
-
-				}
-			});
+//			Stream.of(kl33121, kl33122).forEach(k -> {
+//				for (int i = 0; i < k.inputs(); i++) {
+//					Configurator configurator = k.getConfigurator(i);
+//					configurator.deactivateReadOnly();
+//
+//					int currentValue;
+//					try {
+//						currentValue = configurator
+//								.readValuteFromConfigRegister(32).get();
+//						int first8Bit = (byte) currentValue;
+//						int second8Bit = (byte) (currentValue >> 8);
+//
+//						int first8BitToWrite = 0b00000110;
+//						first8BitToWrite = first8BitToWrite
+//								| (((first8Bit >> 7) & 1) << 7);
+//						int second8BitToWrite = 0b01000000;
+//						second8BitToWrite = second8BitToWrite
+//								| (((second8Bit >> 1) & 1) << 1);
+//						second8BitToWrite = second8BitToWrite
+//								| (((second8Bit >> 3) & 1) << 3);
+//
+//						int userRegisterValue = first8BitToWrite
+//								+ (second8BitToWrite << 8);
+//
+//						configurator.writeValueToConfigRegister(32,
+//								userRegisterValue);
+//						configurator.activateReadOnly();
+//						configurator.switchOffRegisterCommunication();
+//					} catch (InterruptedException | ExecutionException e) {
+//						log.error(
+//								"Faield to configure one of the clamps! (KL3312)");
+//						throw new IllegalStateException(
+//								"Failed to configure one of the clamps!", e);
+//					}
+//
+//				}
+//			});
 		}
 
 		return bk;

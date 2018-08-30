@@ -1,21 +1,21 @@
 <nb-card>
   <nb-card-header>PID Values <ng-content></ng-content></nb-card-header>
   <nb-card-body>
-    <form>
+    <form (ngSubmit)="onSubmit()" #mainform="ngForm">
       <div class="form-group">
         <label for="pValue">P-Value</label>
-        <input type="number" class="form-control" id="pValue" placeholder="{{heaterStatus.p}}">
+        <input type="number" required class="form-control" name="pValue" [(ngModel)]="heaterStatus.p"  placeholder="{{heaterStatus.p}}">
       </div>
       <div class="form-group">
         <label for="iValue">I-Value</label>
-        <input type="number" class="form-control" id="iValue" placeholder="{{heaterStatus.i}}">
+        <input type="number" required class="form-control" name="iValue" [(ngModel)]="heaterStatus.i" placeholder="{{heaterStatus.i}}">
       </div>
       <div class="form-group">
         <label for="dValue">D-Value</label>
-        <input type="number" class="form-control" id="dValue" placeholder="{{heaterStatus.d}}">
+        <input type="number" required class="form-control" name="dValue" [(ngModel)]="heaterStatus.d" placeholder="{{heaterStatus.d}}">
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-      <button class = "btn btn-danger">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="!mainform.form.valid">Submit</button>
+      <button type="button" class = "btn btn-danger" (click)="onCancel()">Cancel</button>
     </form>
   </nb-card-body>
 </nb-card>

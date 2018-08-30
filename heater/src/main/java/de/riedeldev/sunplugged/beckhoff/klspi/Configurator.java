@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Configurator {
 
-	public static long CONTROLLER_WAIT_TIME = 100;
+	public static long CONTROLLER_WAIT_TIME = 200;
 
 	private ModbusTcpMaster master;
 	private int statusRegister;
@@ -42,7 +42,7 @@ public class Configurator {
 
 	public CompletableFuture<Void> writeValueToConfigRegister(int register,
 			int value) {
-
+		log.info("Writing to register: " + register + " Value: " + value);
 		if (isused == true) {
 			synchronized (this) {
 				try {

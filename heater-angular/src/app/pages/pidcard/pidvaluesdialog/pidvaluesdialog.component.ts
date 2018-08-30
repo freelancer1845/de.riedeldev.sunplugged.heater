@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { HeaterStatus } from '../../../@core/data/heater.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'ngx-pidvaluesdialog',
@@ -8,9 +9,18 @@ import { HeaterStatus } from '../../../@core/data/heater.service';
 })
 export class PidvaluesdialogComponent implements OnInit {
 
-  constructor() { }
+  constructor(private activeModal: NgbActiveModal) { }
 
   ngOnInit() {
+  }
+
+  onSubmit() {
+    console.log(this.heaterStatus);
+    this.activeModal.close(this.heaterStatus);
+  }
+
+  onCancel() {
+    this.activeModal.dismiss();
   }
 
   @Input() heaterStatus: HeaterStatus;

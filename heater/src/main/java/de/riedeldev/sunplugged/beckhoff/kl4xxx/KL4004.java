@@ -10,6 +10,7 @@ import de.riedeldev.sunplugged.beckhoff.klspi.AbstractClamp;
 import de.riedeldev.sunplugged.beckhoff.klspi.AnalogOutputKlemme;
 import de.riedeldev.sunplugged.beckhoff.klspi.Configurator;
 
+
 public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 
 	private static final int ADDRESS_SPACE_SIZE = 8;
@@ -85,6 +86,9 @@ public class KL4004 extends AbstractClamp implements AnalogOutputKlemme {
 
 	@Override
 	public CompletableFuture<Void> set(int number, double value) {
+		System.out.println("WriteAddressOffset: " + writeAddressOffset);
+		System.out.println("Writing to output: " + (writeAddressOffset + (number * 2) + 1));
+		System.out.println("Hex representation: " + Integer.toHexString(writeAddressOffset + (number * 2) + 1));
 		return master
 				.sendRequest(
 						new WriteSingleRegisterRequest(
