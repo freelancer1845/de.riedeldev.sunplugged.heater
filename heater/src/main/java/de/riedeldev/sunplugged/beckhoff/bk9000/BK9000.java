@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.digitalpetri.modbus.master.ModbusTcpMaster;
 import com.digitalpetri.modbus.master.ModbusTcpMasterConfig;
 import com.digitalpetri.modbus.requests.WriteSingleRegisterRequest;
+import com.digitalpetri.modbus.responses.ModbusResponse;
 
 import de.riedeldev.sunplugged.beckhoff.klspi.AnalogInputKlemme;
 import de.riedeldev.sunplugged.beckhoff.klspi.AnalogOutputKlemme;
@@ -102,6 +103,10 @@ public class BK9000 {
 //		}
 		master.connect();
 		this.master = master;
+	}
+	
+	public CompletableFuture<ModbusTcpMaster> disconnect() {
+		return master.disconnect();
 	}
 
 	public CompletableFuture<Void> setDigitalOutput(int number, boolean value) {
@@ -199,6 +204,10 @@ public class BK9000 {
 			}
 		}
 
+	}
+	
+	public CompletableFuture<ModbusResponse> setWatchDogTime(int ms) {
+		return master.sendRequest(new WriteSingleRegisterRequest(0x1120, ms), 1);
 	}
 
 	public Klemme getClamp(String id) {

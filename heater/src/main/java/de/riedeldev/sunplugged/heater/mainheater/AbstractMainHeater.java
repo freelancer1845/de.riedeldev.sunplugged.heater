@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractMainHeater extends AbstractHeater {
 
 	/** in seconds */
-	private long FULL_CYCLE_WIDTH = 5000;
+	private long FULL_CYCLE_WIDTH = 500;
 
 	private final int switchOutput;
 
@@ -33,7 +33,7 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 		this.ioService = ioService;
 		this.switchOutput = switchOutput;
 		this.temperatureInput = temperatureInput;
-
+		this.miniPID.setOutputLimits(0.0, 0.6);
 		relayThread = createRelayThread();
 	}
 
@@ -68,11 +68,11 @@ public abstract class AbstractMainHeater extends AbstractHeater {
 				onWidth = (long) (FULL_CYCLE_WIDTH * getPower());
 				offWidth = (long) ((1 - getPower()) * FULL_CYCLE_WIDTH);
 
-				if (onWidth > 40) {
+				if (onWidth > 10) {
 					ioService.setDO(switchOutput, true);
 					Thread.sleep(onWidth);
 				}
-				if (offWidth > 40) {
+				if (offWidth > 10) {
 					ioService.setDO(switchOutput, false);
 					Thread.sleep(offWidth);
 				}

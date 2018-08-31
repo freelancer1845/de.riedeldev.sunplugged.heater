@@ -7,7 +7,7 @@ import de.riedeldev.sunplugged.heater.config.WebSocketConfig.Topics;
 import de.riedeldev.sunplugged.heater.io.Addresses;
 import de.riedeldev.sunplugged.heater.io.IOService;
 
-@Service
+//@Service
 public class MainHeaterTwo extends AbstractMainHeater {
 
 	public MainHeaterTwo(IOService ioService, Parameters parameters) {

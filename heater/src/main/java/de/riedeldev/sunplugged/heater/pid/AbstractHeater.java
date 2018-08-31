@@ -56,8 +56,8 @@ public abstract class AbstractHeater implements ConfigurableHeater, Runnable {
 		this.topic = topic;
 		miniPID.setSetpoint(0.0);
 		// miniPID.setMaxIOutput(0.5);
-		miniPID.setOutputLimits(0.0, 1.0);
-		miniPID.setOutputRampRate(0.2);
+		miniPID.setOutputLimits(0.0, 0.7);
+		miniPID.setOutputRampRate(0.1);
 		setParameters(parameters);
 	}
 
