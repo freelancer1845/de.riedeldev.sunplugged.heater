@@ -15,6 +15,7 @@ import { PidcardComponent } from './pidcard/pidcard.component';
 import { HeateroverviewComponent } from './heateroverview/heateroverview.component';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { PidvaluesdialogComponent } from './pidcard/pidvaluesdialog/pidvaluesdialog.component';
+import { MappedioComponent } from './inputoutput/mappedio/mappedio.component';
 
 const PAGES_COMPONENTS = [
   PagesComponent,
@@ -39,6 +40,7 @@ const PAGES_COMPONENTS = [
     PidcardComponent,
     HeateroverviewComponent,
     PidvaluesdialogComponent,
+    MappedioComponent,
   ],
   entryComponents: [
     PidvaluesdialogComponent,

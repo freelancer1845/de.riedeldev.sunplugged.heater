@@ -14,18 +14,18 @@ export class HeateroverviewComponent implements OnInit {
     'name': 'Pre Heater One',
     'topic': HeaterTopics.PRE_HEATER_ONE,
   },
-  // {
-  //   'name': 'Pre Heater Two',
-  //   'topic': HeaterTopics.PRE_HEATER_TWO,
-  // },
+  {
+    'name': 'Pre Heater Two',
+    'topic': HeaterTopics.PRE_HEATER_TWO,
+  },
   {
     'name': 'Main Heater One',
     'topic': HeaterTopics.MAIN_HEATER_ONE,
   },
-  {
-    'name': 'Main Heater Two',
-    'topic': HeaterTopics.MAIN_HEATER_TWO,
-  },
+  // {
+  //   'name': 'Main Heater Two',
+  //   'topic': HeaterTopics.MAIN_HEATER_TWO,
+  // },
   {
     'name': 'Main Heater Three',
     'topic': HeaterTopics.MAIN_HEATER_THREE,
